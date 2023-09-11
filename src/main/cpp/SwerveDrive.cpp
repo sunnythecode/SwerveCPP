@@ -36,7 +36,7 @@ void SwerveDrive::desiredSpeedToModuleStates(ChassisSpeeds desired)
     setModuleVelocity(mFrontLeft, sqrt((B * B) + (D * D)), atan2(B, D));
     setModuleVelocity(mFrontRight, sqrt((B * B) + (C * C)), atan2(B, C));
     setModuleVelocity(mBackLeft, sqrt((A * A) + (D * D)), atan2(A, D));
-    setModuleVelocity(mFrontLeft, sqrt((A * A) + (C * C)), atan2(A, C));
+    setModuleVelocity(mBackRight, sqrt((A * A) + (C * C)), atan2(A, C));
 }
 
 void SwerveDrive::setModuleVelocity(SwerveModule &mModule, double speed, double angleRadians)
