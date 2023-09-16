@@ -21,19 +21,25 @@ public:
           vyMetersPerSecond(vyMetersPerSecond),
           omegaRadiansPerSecond(omegaRadiansPerSecond) {}
 
-    // static ChassisSpeeds fromFieldRelativeSpeeds(double vxMetersPerSecond, double vyMetersPerSecond,
-    //                                              double omegaRadiansPerSecond, const Rotation2d& robotAngle) {
-    //     return ChassisSpeeds(
-    //         vxMetersPerSecond * cos(robotAngle.radians()) + vyMetersPerSecond * robotAngle.getSin(),
-    //         -vxMetersPerSecond * robotAngle.getSin() + vyMetersPerSecond * robotAngle.getCos(),
-    //         omegaRadiansPerSecond
-    //     );
-    // }
+    static ChassisSpeeds fromFieldRelativeSpeeds(double vxMetersPerSecond, double vyMetersPerSecond,
+                                                 double omegaRadiansPerSecond, const Rotation2d robotAngle) {
+        return ChassisSpeeds(
+            vxMetersPerSecond * cos(robotAngle.getRadians()) + vyMetersPerSecond * sin(robotAngle.getRadians()),
+            -vxMetersPerSecond * sin(robotAngle.getRadians()) + vyMetersPerSecond * cos(robotAngle.getRadians()),
+            omegaRadiansPerSecond);
+    }
 
     static ChassisSpeeds fromRobotRelativeSpeeds(double vxMetersPerSecond, double vyMetersPerSecond,
                                                  double omegaRadiansPerSecond) {
         return ChassisSpeeds(vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond);
     }
+
+    // static ChassisSpeeds fromFieldRelativeSpeeds(double vxMetersPerSecond, double vyMetersPerSecond, double omegaRadiansPerSecond, Rotation2d robotAngle) {
+    //     return ChassisSpeeds(
+    //             vxMetersPerSecond * robotAngle.cos() + vyMetersPerSecond * robotAngle.sin(),
+    //             -vxMetersPerSecond * robotAngle.sin() + vyMetersPerSecond * robotAngle.cos(),
+    //             omegaRadiansPerSecond);
+    // }
 
 
     std::string toString() const {

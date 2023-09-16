@@ -16,7 +16,8 @@ void Robot::AutonomousPeriodic() {}
 void Robot::TeleopInit() {}
 void Robot::TeleopPeriodic()
 {
-  mDrive.Drive(mController->GetRightX(), mController->GetLeftX(), mController->GetLeftY());
+  double gyro = 0;
+  mDrive.Drive(mController->GetRightX(), mController->GetLeftX(), mController->GetLeftY(), gyro);
 }
 
 void Robot::DisabledInit() {}

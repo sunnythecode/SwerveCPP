@@ -1,6 +1,8 @@
 #include "SwerveModule.h"
 #include "Rotation2d.h"
 #include "ChassisSpeeds.h"
+#include "Translation2d.h"
+
 #include <thread>
 
 class SwerveDrive
@@ -24,7 +26,7 @@ private:
     float wheelBase = 1.0;
 
 public:
-    void Drive(double rightX, double leftX, double leftY);
+    void Drive(double rightX, double leftX, double leftY, double fieldRelativeGyro);
     void desiredSpeedToModuleStates(ChassisSpeeds desired);
     void setModuleVelocity(SwerveModule &mModule, double speed, double angleRadians);
     void initAllMotors();

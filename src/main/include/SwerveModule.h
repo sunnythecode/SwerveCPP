@@ -39,4 +39,7 @@ public:
     bool isFinished(float percentageBound);
     void run();
     void joinThread();
+
+
+
 };

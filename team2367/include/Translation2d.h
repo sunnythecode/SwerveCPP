@@ -26,6 +26,14 @@ public:
     return x_ * x_ + y_ * y_;
   }
 
+  double x() {
+    return x_;
+  }
+
+  double y() {
+    return y_;
+  }
+
   // We can compose Translation2d's by adding together the x and y shifts.
   Translation2d translateBy(const Translation2d& other) const {
     return Translation2d(x_ + other.x_, y_ + other.y_);
