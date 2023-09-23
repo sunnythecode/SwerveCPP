@@ -6,7 +6,7 @@
 
 #include <frc/TimedRobot.h>
 #include <frc/XboxController.h>
-#include "SwerveDrive.h"
+#include "SwerveModule.h"
 
 
 class Robot : public frc::TimedRobot {
@@ -30,5 +30,6 @@ class Robot : public frc::TimedRobot {
   void SimulationPeriodic() override;
 
   frc::XboxController* mController = new frc::XboxController(0);
-  SwerveDrive mDrive = SwerveDrive();
+  //SwerveDrive mDrive = SwerveDrive();
+  SwerveModule testModule = SwerveModule(7, 16);
 };

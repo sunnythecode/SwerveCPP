@@ -56,10 +56,10 @@ class SwerveDriveKinematics
 
     private:
         int m_numModules;
-        std::vector<Translation2d> m_modules;
-        Eigen::MatrixXd m_inverseKinematics;
+        frc::Vectord<float, > m_modules;
+        frc::Matrixd m_inverseKinematics;
         std::vector<Rotation2d> m_rotations;
-        Eigen::MatrixXd m_forwardKinematics;
+        frc::Matrixd m_forwardKinematics;
 
 
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> inverseKinematics;

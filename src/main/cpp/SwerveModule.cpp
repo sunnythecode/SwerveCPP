@@ -99,6 +99,14 @@ void SwerveModule::run()
     }
 }
 
+double SwerveModule::getSteerEncoder() {
+    return steerEnc.GetPosition();
+}
+
+double SwerveModule::getDriveEncoder() {
+    return driveEnc.GetPosition();
+}
+
 void SwerveModule::joinThread()
 {
     stopThread = true;

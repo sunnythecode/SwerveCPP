@@ -3,21 +3,32 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "Robot.h"
+#include <frc/smartdashboard/SmartDashboard.h>
 
 void Robot::RobotInit()
 {
-  mDrive.initAllMotors();
+  //mDrive.initAllMotors();
+  testModule.initMotors();
 }
-void Robot::RobotPeriodic() {}
+void Robot::RobotPeriodic() {
+  frc::SmartDashboard::PutNumber("SteerEnc", testModule.getSteerEncoder());
+  frc::SmartDashboard::PutNumber("DriveEnc", testModule.getDriveEncoder());
+}
 
-void Robot::AutonomousInit() {}
-void Robot::AutonomousPeriodic() {}
+void Robot::AutonomousInit() {
+}
+void Robot::AutonomousPeriodic() {
+}
 
-void Robot::TeleopInit() {}
+void Robot::TeleopInit() {
+  testModule.setSteerAngleSetpoint(10);
+}
 void Robot::TeleopPeriodic()
 {
-  double gyro = 0;
-  mDrive.Drive(mController->GetRightX(), mController->GetLeftX(), mController->GetLeftY(), gyro);
+  
+  
+  //double gyro = 0;
+  //mDrive.Drive(mController->GetRightX(), mController->GetLeftX(), mController->GetLeftY(), gyro);
 }
 
 void Robot::DisabledInit() {}

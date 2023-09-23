@@ -96,6 +96,7 @@
     "streambuf": "cpp",
     "thread": "cpp",
     "cinttypes": "cpp",
-    "typeindex": "cpp"
+    "typeindex": "cpp",
+    "core": "cpp"
   }
 }

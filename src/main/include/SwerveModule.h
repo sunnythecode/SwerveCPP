@@ -36,6 +36,8 @@ public:
     void setSteerAngleSetpointShortestPath(float setpt);
     void setDrivePositionSetpoint(float setpt);
     void setDriveVelocitySetpoint(float setpt);
+    double getSteerEncoder();
+    double getDriveEncoder();
     bool isFinished(float percentageBound);
     void run();
     void joinThread();
