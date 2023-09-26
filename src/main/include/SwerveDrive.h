@@ -2,7 +2,8 @@
 #include "Rotation2d.h"
 #include "ChassisSpeeds.h"
 #include "Translation2d.h"
-
+#include "SwerveDriveKinematics.h"
+#include "SwerveModuleState.h"
 #include <thread>
 
 class SwerveDrive
@@ -25,9 +26,11 @@ private:
     float trackWidth = 1.0;
     float wheelBase = 1.0;
 
+    std::vector<Translation2d> wheelPs = {Translation2d(trackWidth, wheelBase), Translation2d(trackWidth, -wheelBase), Translation2d(-trackWidth, wheelBase), Translation2d(-trackWidth, -wheelBase)};
+    SwerveDriveKinematics m_kinematics = SwerveDriveKinematics(wheelPs);
+
 public:
     void Drive(double rightX, double leftX, double leftY, double fieldRelativeGyro);
-    void desiredSpeedToModuleStates(ChassisSpeeds desired);
     void setModuleVelocity(SwerveModule &mModule, double speed, double angleRadians);
     void initAllMotors();
     bool stopAllMotors();

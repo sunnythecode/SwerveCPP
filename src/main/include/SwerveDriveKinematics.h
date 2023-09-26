@@ -1,70 +1,66 @@
+#include <iostream>
 #include <frc/EigenCore.h>
 #include "Translation2d.h"
 #include "Rotation2d.h"
 #include <vector>
-#include "SwerveModuleState.h"
+#include "Eigen/QR"
 #include "ChassisSpeeds.h"
+#include <cmath>
+#include "SwerveModuleState.h"
 
-class SwerveDriveKinematics
-{
+class SwerveDriveKinematics {
+    private: 
+        const static int m_numModules = 4;
+        frc::Matrixd<m_numModules * 2, 2> testMatrix;
+        frc::Matrixd<m_numModules * 2, 3> m_inverseKinematics;
+        frc::Matrixd<3, m_numModules * 2> m_forwardsKinematics;
+        Rotation2d m_rotations[4];
+        frc::Matrixd<3, 1> chassisSpeedsVector;
+
     public:
 
-    SwerveDriveKinematics(const std::vector<Translation2d>& wheelsMeters) {
-        if (wheelsMeters.size() < 2) {
-            throw std::invalid_argument("A swerve drive requires at least two modules");
-        }
-        m_numModules = wheelsMeters.size();
-        m_modules = wheelsMeters;
-        m_inverseKinematics.resize(m_numModules * 2, 3);
-        m_rotations.resize(m_numModules);
-
-        for (int i = 0; i < m_numModules; i++) {
+        SwerveDriveKinematics(std::vector<Translation2d> wheelsPos) {
+            //m_numModules = wheelsPos.size();
+            std::vector<Translation2d> m_modules = wheelsPos;
             
-            m_inverseKinematics.block(i * 2, 0, 2, 3) <<
-                1.0, 0.0, -m_modules.at(i).y(),
-                0.0, 1.0, m_modules.at(i).x();
-            //Atan2 should return radians
-            m_rotations.at(i) = Rotation2d(std::atan2(m_modules[i].y(), m_modules[i].x()));
+
+            for (int i = 0; i < m_numModules; i++) {
+                m_inverseKinematics.block<2, 3>(i * 2, 0) = frc::Matrixd<2, 3>{
+                {1, 0, float(-m_modules[i].y())},
+                {0, 1, float(m_modules[i].x())}
+                }; 
+                m_rotations[i] = Rotation2d(atan2(m_modules[i].y(), m_modules[i].x()));
+            }
+
+            m_forwardsKinematics = m_inverseKinematics.completeOrthogonalDecomposition().pseudoInverse();
+            
+
         }
 
-        m_forwardKinematics = m_inverseKinematics.completeOrthogonalDecomposition().pseudoInverse();
-    }
+        std::vector<SwerveModuleState> toSwerveStates(ChassisSpeeds desiredSpeeds) {
+            // Its a vector but I used a matrix sorry ik theres a vector class
+            chassisSpeedsVector = frc::Matrixd<3, 1> {{float(desiredSpeeds.vxMetersPerSecond)},
+                                                        {float(desiredSpeeds.vyMetersPerSecond)}, 
+                                                        {float(desiredSpeeds.omegaRadiansPerSecond)}};
 
-    std::vector<SwerveModuleState> toSwerveModuleStates(ChassisSpeeds desiredSpeeds) {
+            //std::cout << chassisSpeedsVector;
+            // I used Eigen::Dynamic even tho I didn't import Eigen on this file so thats weird
+            // Make sure to add the Eigen/Dynamic include in the future
+            frc::Matrixd<Eigen::Dynamic, Eigen::Dynamic> moduleStatesMatrix = m_inverseKinematics * chassisSpeedsVector; // Matrix Multiplication
+            std::vector<SwerveModuleState> moduleStates;
 
-        Eigen::Vector3d chassisSpeedsVector;
-        chassisSpeedsVector << 0.0, desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, desiredSpeeds.omegaRadiansPerSecond;
+            for (int i = 0; i < m_numModules; i++) {
+                    double x = moduleStatesMatrix(i * 2, 0);
+                    double y = moduleStatesMatrix(i * 2 + 1, 0);
 
-        Eigen::VectorXd moduleStatesVector = m_inverseKinematics * chassisSpeedsVector;
+                    double speed = hypot(x, y);
+                    Rotation2d angle = Rotation2d(atan2(y, x));
+                    moduleStates.push_back(SwerveModuleState(speed, angle));
+                    //std::cout << "\n" << speed << ", " << angle.getDegrees();
+            }
 
-        std::vector<SwerveModuleState> moduleStates(m_numModules);
+            return moduleStates;
 
-        for (int i = 0; i < m_numModules; i++) {
-            double x = moduleStatesVector(i * 2);
-            double y = moduleStatesVector(i * 2 + 1);
-
-            double speed = std::hypot(x, y);
-            Rotation2d angle = Rotation2d(std::atan2(y, x));
-
-            moduleStates[i] = SwerveModuleState(speed, angle);
-        }
-
-        return moduleStates;
-    }
-
-    
-
-    private:
-        int m_numModules;
-        frc::Vectord<float, > m_modules;
-        frc::Matrixd m_inverseKinematics;
-        std::vector<Rotation2d> m_rotations;
-        frc::Matrixd m_forwardKinematics;
-
-
-        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> inverseKinematics;
-        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> forwardKinematics;
-    
-
-
+            
+        }    
 };

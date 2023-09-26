@@ -1,4 +1,3 @@
-#pragma once
 
 #include "Rotation2d.h"
 
@@ -12,14 +11,20 @@ class SwerveModuleState {
             speed_ = speedMPS;
             angleRadians_ = angleRadians;
         }
-        SwerveModuleState(double speedMPS, double angleDegrees) {
-            speed_ = speedMPS;
-            angleRadians_ = angleDegrees * M_PI / 180.0;
-        }
 
         SwerveModuleState(double speedMPS, Rotation2d rotRadians) {
             speed_ = speedMPS;
             angleRadians_ = rotRadians.getRadians();
+        }
+        SwerveModuleState() {
+            speed_ = 0;
+            angleRadians_ = 0;
+        }
+        Rotation2d getRot2d() {
+            return Rotation2d(angleRadians_);
+        }
+        double getSpeedMPS() {
+            return speed_;
         }
 
 

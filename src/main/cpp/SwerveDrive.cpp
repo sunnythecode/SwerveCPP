@@ -27,14 +27,16 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
 
     ChassisSpeeds desiredSpeeds = ChassisSpeeds::fromFieldRelativeSpeeds(Vx, Vy, omega, fieldRelativeGyro);
 
-    desiredSpeedToModuleStates(desiredSpeeds);
+    std::vector<SwerveModuleState> moduleStates = m_kinematics.toSwerveStates(desiredSpeeds);
+    
+    // mFrontLeft.setModuleState(moduleStates[0]);
+    // mFrontRight.setModuleState(moduleStates[1]);
+    // mBackRight.setModuleState(moduleStates[2]);
+    // mBackLeft.setModuleState(moduleStates[3]);
+
 }
 
-void SwerveDrive::desiredSpeedToModuleStates(ChassisSpeeds desired)
-{
-    //Ignore scenario where the center of rotation changes, because we do not intend on rotating around another point during teleop
-    
-}
+
 
 void SwerveDrive::setModuleVelocity(SwerveModule &mModule, double speed, double angleRadians)
 {

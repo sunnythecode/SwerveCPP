@@ -8,7 +8,7 @@
 void Robot::RobotInit()
 {
   //mDrive.initAllMotors();
-  testModule.initMotors();
+  testModule.initMotors(); 
 }
 void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutNumber("SteerEnc", testModule.getSteerEncoder());

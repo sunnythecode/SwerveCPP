@@ -1,5 +1,7 @@
 #include <rev/CANSparkMax.h>
 #include <thread>
+#include "Translation2d.h"
+#include "SwerveModuleState.h"
 
 class SwerveModule
 {
@@ -28,6 +30,8 @@ private:
     bool driveModePosition = false;
     bool stopThread = false;
 
+
+
 public:
     SwerveModule(int steerMotorID, int driveMotorID);
     void initMotors();
@@ -36,6 +40,7 @@ public:
     void setSteerAngleSetpointShortestPath(float setpt);
     void setDrivePositionSetpoint(float setpt);
     void setDriveVelocitySetpoint(float setpt);
+    void setModuleState(SwerveModuleState setpt);
     double getSteerEncoder();
     double getDriveEncoder();
     bool isFinished(float percentageBound);

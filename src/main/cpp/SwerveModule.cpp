@@ -62,6 +62,11 @@ void SwerveModule::setDriveVelocitySetpoint(float setpt)
     driveModePosition = false;
 }
 
+void SwerveModule::setModuleState(SwerveModuleState setpt) {
+    setDriveVelocitySetpoint(setpt.getSpeedMPS());
+    setSteerAngleSetpoint(setpt.getRot2d().getRadians());
+}
+
 bool SwerveModule::isFinished(float percentageBound)
 {
     if (driveModePosition)
