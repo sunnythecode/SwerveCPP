@@ -1,4 +1,4 @@
-
+#pragma once
 #include "Rotation2d.h"
 
 class SwerveModuleState {
