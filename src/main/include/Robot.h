@@ -7,10 +7,11 @@
 #include <frc/TimedRobot.h>
 #include <frc/XboxController.h>
 #include "SwerveModule.h"
+#include <thread>
 
-
-class Robot : public frc::TimedRobot {
- public:
+class Robot : public frc::TimedRobot
+{
+public:
   void RobotInit() override;
   void RobotPeriodic() override;
 
@@ -29,7 +30,6 @@ class Robot : public frc::TimedRobot {
   void SimulationInit() override;
   void SimulationPeriodic() override;
 
-  frc::XboxController* mController = new frc::XboxController(0);
-  //SwerveDrive mDrive = SwerveDrive();
-  SwerveModule testModule = SwerveModule(7, 16);
+  frc::XboxController *mController = new frc::XboxController(0);
+  SwerveModule testModule = SwerveModule(7, 17);
 };

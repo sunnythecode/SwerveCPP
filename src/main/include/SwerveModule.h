@@ -1,15 +1,20 @@
+#pragma once
+
 #include <rev/CANSparkMax.h>
 #include <thread>
 #include "Translation2d.h"
 #include "SwerveModuleState.h"
+#include "Constants.h"
 
 class SwerveModule
 {
-private:
-    int steerID;
-    int driveID;
-    rev::CANSparkMax *steerMotor = new rev::CANSparkMax(steerID, rev::CANSparkMax::MotorType::kBrushless);
+// private: <- removed for testing
+public:
+    int steerID = 7;
+    int driveID = 17;
+    rev::CANSparkMax *steerMotor  = new rev::CANSparkMax(steerID, rev::CANSparkMax::MotorType::kBrushless);
     rev::CANSparkMax *driveMotor = new rev::CANSparkMax(driveID, rev::CANSparkMax::MotorType::kBrushless);
+    
 
     rev::SparkMaxPIDController steerPID = steerMotor->GetPIDController();
     rev::SparkMaxPIDController drivePID = driveMotor->GetPIDController();
@@ -17,12 +22,12 @@ private:
     rev::SparkMaxRelativeEncoder steerEnc = steerMotor->GetEncoder();
     rev::SparkMaxRelativeEncoder driveEnc = driveMotor->GetEncoder();
 
-    double steerP;
-    double steerI;
-    double steerD;
-    double driveP;
-    double driveI;
-    double driveD;
+    double steerP = 0.3;
+    double steerI = 0;
+    double steerD = 0;
+    double driveP = 0.3;
+    double driveI = 0;
+    double driveD = 0;
 
     float driveVelocitySetpoint;
     float drivePositionSetpoint;
@@ -32,7 +37,7 @@ private:
 
 
 
-public:
+// public:
     SwerveModule(int steerMotorID, int driveMotorID);
     void initMotors();
     float getSteerAngleSetpoint();
@@ -44,8 +49,8 @@ public:
     double getSteerEncoder();
     double getDriveEncoder();
     bool isFinished(float percentageBound);
-    void run();
-    void joinThread();
+    void run(); // Not working, not ready to thread yet
+    void joinThread(); // Not working, not ready to thread yet
 
 
 

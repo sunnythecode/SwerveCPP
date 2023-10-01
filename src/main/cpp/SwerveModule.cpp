@@ -2,14 +2,14 @@
 
 SwerveModule::SwerveModule(int steerMotorID, int driveMotorID)
 {
-    steerMotor = new rev::CANSparkMax(steerMotorID, rev::CANSparkMax::MotorType::kBrushless);
-    driveMotor = new rev::CANSparkMax(driveMotorID, rev::CANSparkMax::MotorType::kBrushless);
     steerID = steerMotorID;
     driveID = driveMotorID;
 }
 
 void SwerveModule::initMotors()
 {
+    steerEnc.SetPosition(0);
+    driveEnc.SetPosition(0);
     steerMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     driveMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
 
@@ -17,14 +17,18 @@ void SwerveModule::initMotors()
     driveMotor->SetSmartCurrentLimit(20);
 
     steerEnc.SetPositionConversionFactor(2 * M_PI); // Rotations to Radians
+    //driveEnc.SetPositionConversionFactor(driveEncPositionConvFactor);
 
-    // steerPID.SetP(steerP);
-    // steerPID.SetI(steerI);
-    // steerPID.SetD(steerD);
+    steerPID.SetP(steerP);
+    steerPID.SetI(steerI);
+    steerPID.SetD(steerD);
 
-    // drivePID.SetP(driveP);
-    // drivePID.SetI(driveI);
-    // drivePID.SetD(driveD);
+    drivePID.SetP(driveP);
+    drivePID.SetI(driveI);
+    drivePID.SetD(driveD);
+
+    steerPID.SetOutputRange(-1.0, 1.0);
+    drivePID.SetOutputRange(-1.0, 1.0);
 }
 
 float SwerveModule::getSteerAngleSetpoint()
@@ -34,7 +38,8 @@ float SwerveModule::getSteerAngleSetpoint()
 
 void SwerveModule::setSteerAngleSetpoint(float setpt)
 {
-    steerAngleSetpoint = setpt;
+    //steerAngleSetpoint = setpt;
+    steerPID.SetReference(steerAngleSetpoint, rev::CANSparkMax::ControlType::kPosition);
 }
 
 void SwerveModule::setSteerAngleSetpointShortestPath(float setpt)
@@ -58,8 +63,9 @@ void SwerveModule::setDrivePositionSetpoint(float setpt)
 
 void SwerveModule::setDriveVelocitySetpoint(float setpt)
 {
-    driveVelocitySetpoint = setpt;
+    //driveVelocitySetpoint = setpt;
     driveModePosition = false;
+    drivePID.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kPosition);
 }
 
 void SwerveModule::setModuleState(SwerveModuleState setpt) {
@@ -85,22 +91,30 @@ void SwerveModule::run()
 {
     while (1)
     {
-        if (stopThread)
+        if (stopThread) //Thread is in standby mode
         {
+            
             steerMotor->StopMotor();
             driveMotor->StopMotor();
             break;
-        }
-        steerPID.SetReference(steerAngleSetpoint, rev::CANSparkMax::ControlType::kPosition);
+        } 
+        
+        else //Else 
+        {
+            printf("%.6f", steerAngleSetpoint);
+            steerPID.SetReference(steerAngleSetpoint, rev::CANSparkMax::ControlType::kPosition);
 
-        if (driveModePosition)
-        {
-            drivePID.SetReference(drivePositionSetpoint, rev::CANSparkMax::ControlType::kPosition);
+            if (driveModePosition)
+            {
+                drivePID.SetReference(drivePositionSetpoint, rev::CANSparkMax::ControlType::kPosition);
+            }
+            else
+            {
+                drivePID.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kPosition);
+            }
+
         }
-        else
-        {
-            drivePID.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kPosition);
-        }
+        
     }
 }
 
