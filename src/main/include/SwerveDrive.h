@@ -1,4 +1,4 @@
-/*
+
 #include "SwerveModule.h"
 #include "Rotation2d.h"
 #include "ChassisSpeeds.h"
@@ -36,4 +36,3 @@ public:
     void initAllMotors();
     bool stopAllMotors();
 };
-*/
