@@ -38,7 +38,7 @@ public:
 
 
 // public:
-    SwerveModule(int steerMotorID, int driveMotorID);
+    SwerveModule(int steerMotorID, int driveMotorID); // To be implemented, unable to initialize motors here
     void initMotors();
     float getSteerAngleSetpoint();
     void setSteerAngleSetpoint(float setpt);
