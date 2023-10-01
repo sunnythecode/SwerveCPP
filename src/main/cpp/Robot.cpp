@@ -4,32 +4,28 @@
 
 #include "Robot.h"
 #include <frc/smartdashboard/SmartDashboard.h>
+#include "SwerveModule.h"
+
+// std::thread t(&SwerveModule::run, &Robot::testModule);
 
 void Robot::RobotInit()
 {
-  //mDrive.initAllMotors();
-  testModule.initMotors(); 
+  testModule.initMotors();
 }
-void Robot::RobotPeriodic() {
+void Robot::RobotPeriodic()
+{
   frc::SmartDashboard::PutNumber("SteerEnc", testModule.getSteerEncoder());
   frc::SmartDashboard::PutNumber("DriveEnc", testModule.getDriveEncoder());
 }
 
-void Robot::AutonomousInit() {
-}
-void Robot::AutonomousPeriodic() {
-}
-
-void Robot::TeleopInit() {
-  testModule.setSteerAngleSetpoint(10);
-}
-void Robot::TeleopPeriodic()
+void Robot::AutonomousInit()
 {
-  
-  
-  //double gyro = 0;
-  //mDrive.Drive(mController->GetRightX(), mController->GetLeftX(), mController->GetLeftY(), gyro);
+  testModule.setSteerAngleSetpoint(25.0);
 }
+void Robot::AutonomousPeriodic() {}
+
+void Robot::TeleopInit() {}
+void Robot::TeleopPeriodic() {}
 
 void Robot::DisabledInit() {}
 void Robot::DisabledPeriodic() {}

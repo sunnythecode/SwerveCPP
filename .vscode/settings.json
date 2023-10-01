@@ -97,6 +97,17 @@
     "thread": "cpp",
     "cinttypes": "cpp",
     "typeindex": "cpp",
-    "core": "cpp"
+    "core": "cpp",
+    "__bit_reference": "cpp",
+    "__errc": "cpp",
+    "__hash_table": "cpp",
+    "__locale": "cpp",
+    "__mutex_base": "cpp",
+    "__node_handle": "cpp",
+    "__split_buffer": "cpp",
+    "__verbose_abort": "cpp",
+    "charconv": "cpp",
+    "ios": "cpp",
+    "locale": "cpp"
   }
 }
