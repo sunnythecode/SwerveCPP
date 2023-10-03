@@ -14,13 +14,14 @@ void Robot::RobotInit()
 }
 void Robot::RobotPeriodic()
 {
-  frc::SmartDashboard::PutNumber("SteerEnc", testModule.getSteerEncoder());
+  frc::SmartDashboard::PutNumber("SteerEncRad", testModule.getSteerEncoder().getRadians());
   frc::SmartDashboard::PutNumber("DriveEnc", testModule.getDriveEncoder());
 }
 
 void Robot::AutonomousInit()
 {
-  testModule.setSteerAngleSetpoint(25.0);
+  testModule.setSteerAngleSetpoint(25.0); // Hopefully Radians
+  testModule.setDriveVelocitySetpoint(10.0); // RPM
 }
 void Robot::AutonomousPeriodic() {}
 

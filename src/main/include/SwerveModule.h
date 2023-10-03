@@ -46,7 +46,7 @@ public:
     void setDrivePositionSetpoint(float setpt);
     void setDriveVelocitySetpoint(float setpt);
     void setModuleState(SwerveModuleState setpt);
-    double getSteerEncoder();
+    Rotation2d getSteerEncoder();
     double getDriveEncoder();
     bool isFinished(float percentageBound);
     void run(); // Not working, not ready to thread yet

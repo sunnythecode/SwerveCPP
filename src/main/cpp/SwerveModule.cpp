@@ -16,8 +16,8 @@ void SwerveModule::initMotors()
     steerMotor->SetSmartCurrentLimit(20);
     driveMotor->SetSmartCurrentLimit(20);
 
-    steerEnc.SetPositionConversionFactor(2 * M_PI); // Rotations to Radians
-    //driveEnc.SetPositionConversionFactor(driveEncPositionConvFactor);
+    steerEnc.SetPositionConversionFactor(steerEncConvFactor); // Rotations to Radians
+    driveEnc.SetPositionConversionFactor(driveEncConvFactor);
 
     steerPID.SetP(steerP);
     steerPID.SetI(steerI);
@@ -38,7 +38,7 @@ float SwerveModule::getSteerAngleSetpoint()
 
 void SwerveModule::setSteerAngleSetpoint(float setpt)
 {
-    //steerAngleSetpoint = setpt;
+    steerAngleSetpoint = setpt;
     steerPID.SetReference(steerAngleSetpoint, rev::CANSparkMax::ControlType::kPosition);
 }
 
@@ -59,13 +59,15 @@ void SwerveModule::setDrivePositionSetpoint(float setpt)
 {
     drivePositionSetpoint = setpt;
     driveModePosition = true;
+    drivePID.SetReference(drivePositionSetpoint, rev::CANSparkMax::ControlType::kPosition);
+
 }
 
 void SwerveModule::setDriveVelocitySetpoint(float setpt)
 {
-    //driveVelocitySetpoint = setpt;
+    driveVelocitySetpoint = setpt;
     driveModePosition = false;
-    drivePID.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kPosition);
+    drivePID.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kVelocity);
 }
 
 void SwerveModule::setModuleState(SwerveModuleState setpt) {
@@ -118,8 +120,8 @@ void SwerveModule::run()
     }
 }
 
-double SwerveModule::getSteerEncoder() {
-    return steerEnc.GetPosition();
+Rotation2d SwerveModule::getSteerEncoder() {
+    return Rotation2d(steerEnc.GetPosition());
 }
 
 double SwerveModule::getDriveEncoder() {
