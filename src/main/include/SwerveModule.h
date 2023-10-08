@@ -25,9 +25,12 @@ public:
     double steerP = 0.3;
     double steerI = 0;
     double steerD = 0;
-    double driveP = 0.3;
-    double driveI = 0;
+    double driveP = 6e-5;
+    double driveI = 1e-6;
     double driveD = 0;
+    double driveIz = 0;
+    double driveFF = 0.000015;
+    
 
     float driveVelocitySetpoint;
     float drivePositionSetpoint;

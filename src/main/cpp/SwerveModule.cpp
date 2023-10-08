@@ -8,6 +8,8 @@ SwerveModule::SwerveModule(int steerMotorID, int driveMotorID)
 
 void SwerveModule::initMotors()
 {
+    steerMotor->RestoreFactoryDefaults();
+    driveMotor->RestoreFactoryDefaults();
     steerEnc.SetPosition(0);
     driveEnc.SetPosition(0);
     steerMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
@@ -16,8 +18,8 @@ void SwerveModule::initMotors()
     steerMotor->SetSmartCurrentLimit(20);
     driveMotor->SetSmartCurrentLimit(20);
 
-    steerEnc.SetPositionConversionFactor(steerEncConvFactor); // Rotations to Radians
-    driveEnc.SetPositionConversionFactor(driveEncConvFactor);
+    //steerEnc.SetPositionConversionFactor(steerEncConvFactor); // Rotations to Radians
+    //driveEnc.SetPositionConversionFactor(driveEncConvFactor);
 
     steerPID.SetP(steerP);
     steerPID.SetI(steerI);

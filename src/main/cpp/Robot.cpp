@@ -21,7 +21,7 @@ void Robot::RobotPeriodic()
 void Robot::AutonomousInit()
 {
   testModule.setSteerAngleSetpoint(25.0); // Hopefully Radians
-  testModule.setDriveVelocitySetpoint(10.0); // RPM
+  testModule.setDriveVelocitySetpoint(100.0); // RPM
 }
 void Robot::AutonomousPeriodic() {}
 
