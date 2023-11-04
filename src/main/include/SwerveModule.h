@@ -5,22 +5,23 @@
 #include "Translation2d.h"
 #include "SwerveModuleState.h"
 #include "Constants.h"
+#include <frc/controller/PIDController.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 class SwerveModule
 {
-// private: <- removed for testing
+    // private: <- removed for testing
 public:
     int steerID = 7;
     int driveID = 17;
-    rev::CANSparkMax *steerMotor  = new rev::CANSparkMax(steerID, rev::CANSparkMax::MotorType::kBrushless);
+    rev::CANSparkMax *steerMotor = new rev::CANSparkMax(steerID, rev::CANSparkMax::MotorType::kBrushless);
     rev::CANSparkMax *driveMotor = new rev::CANSparkMax(driveID, rev::CANSparkMax::MotorType::kBrushless);
-    
-
-    rev::SparkMaxPIDController steerPID = steerMotor->GetPIDController();
-    rev::SparkMaxPIDController drivePID = driveMotor->GetPIDController();
 
     rev::SparkMaxRelativeEncoder steerEnc = steerMotor->GetEncoder();
     rev::SparkMaxRelativeEncoder driveEnc = driveMotor->GetEncoder();
+
+    frc2::PIDController driveCTR{0.001, 0.0, 0.0};
+    frc2::PIDController steerCTR{0.5, 0.0, 0.0};
 
     double steerP = 0.3;
     double steerI = 0;
@@ -30,7 +31,6 @@ public:
     double driveD = 0;
     double driveIz = 0;
     double driveFF = 0.000015;
-    
 
     float driveVelocitySetpoint;
     float drivePositionSetpoint;
@@ -38,9 +38,7 @@ public:
     bool driveModePosition = false;
     bool stopThread = false;
 
-
-
-// public:
+    // public:
     SwerveModule(int steerMotorID, int driveMotorID); // To be implemented, unable to initialize motors here
     void initMotors();
     float getSteerAngleSetpoint();
@@ -50,11 +48,10 @@ public:
     void setDriveVelocitySetpoint(float setpt);
     void setModuleState(SwerveModuleState setpt);
     Rotation2d getSteerEncoder();
-    double getDriveEncoder();
+    double getDriveEncoderVel();
+    double getDriveEncoderPos();
     bool isFinished(float percentageBound);
-    void run(); // Not working, not ready to thread yet
-    void joinThread(); // Not working, not ready to thread yet
-
-
-
+    void run();
+    void standbyThread();
+    void exitStandbyThread();
 };

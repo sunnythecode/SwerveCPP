@@ -32,4 +32,6 @@ public:
 
   frc::XboxController *mController = new frc::XboxController(0);
   SwerveModule testModule = SwerveModule(7, 17);
+  std::thread testThread;
+  // std::thread t = std::thread(&SwerveModule::run, &testModule);
 };

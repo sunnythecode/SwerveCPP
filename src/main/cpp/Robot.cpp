@@ -4,31 +4,39 @@
 
 #include "Robot.h"
 #include <frc/smartdashboard/SmartDashboard.h>
-#include "SwerveModule.h"
-
-// std::thread t(&SwerveModule::run, &Robot::testModule);
 
 void Robot::RobotInit()
 {
   testModule.initMotors();
+  // Instantiating pre-declared thread
+  testThread = std::thread(&SwerveModule::run, &testModule);
 }
 void Robot::RobotPeriodic()
 {
-  frc::SmartDashboard::PutNumber("SteerEncRad", testModule.getSteerEncoder().getRadians());
-  frc::SmartDashboard::PutNumber("DriveEnc", testModule.getDriveEncoder());
+  // Print the steer encoder position and drive encoder velocity
+  frc::SmartDashboard::PutNumber("Steer", testModule.getSteerEncoder().getRadians());
+  frc::SmartDashboard::PutNumber("Velocity", testModule.getDriveEncoderVel());
 }
 
 void Robot::AutonomousInit()
 {
-  testModule.setSteerAngleSetpoint(25.0); // Hopefully Radians
-  testModule.setDriveVelocitySetpoint(100.0); // RPM
+  // testModule.setSteerAngleSetpoint(0.3);
+  testModule.setDriveVelocitySetpoint(60); // RPM
+  testModule.exitStandbyThread();
 }
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() {}
+void Robot::TeleopInit()
+{
+  testModule.exitStandbyThread();
+}
 void Robot::TeleopPeriodic() {}
 
-void Robot::DisabledInit() {}
+void Robot::DisabledInit()
+{
+  //Put module in standby(stop motors and wait)
+  testModule.standbyThread();
+}
 void Robot::DisabledPeriodic() {}
 
 void Robot::TestInit() {}

@@ -8,6 +8,7 @@ SwerveModule::SwerveModule(int steerMotorID, int driveMotorID)
 
 void SwerveModule::initMotors()
 {
+    // Resetting Motor settings, Encoders, putting it in brake mode
     steerMotor->RestoreFactoryDefaults();
     driveMotor->RestoreFactoryDefaults();
     steerEnc.SetPosition(0);
@@ -15,22 +16,17 @@ void SwerveModule::initMotors()
     steerMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     driveMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
 
+    // Keep the motor limit at under 20A
     steerMotor->SetSmartCurrentLimit(20);
     driveMotor->SetSmartCurrentLimit(20);
 
-    //steerEnc.SetPositionConversionFactor(steerEncConvFactor); // Rotations to Radians
-    //driveEnc.SetPositionConversionFactor(driveEncConvFactor);
+    // Conversion factor from Rotations of motor, which is nothing for now
+    steerEnc.SetPositionConversionFactor(1.0);
+    driveEnc.SetPositionConversionFactor(1.0);
 
-    steerPID.SetP(steerP);
-    steerPID.SetI(steerI);
-    steerPID.SetD(steerD);
-
-    drivePID.SetP(driveP);
-    drivePID.SetI(driveI);
-    drivePID.SetD(driveD);
-
-    steerPID.SetOutputRange(-1.0, 1.0);
-    drivePID.SetOutputRange(-1.0, 1.0);
+    // Setpoints to initial encoder positions/speeds
+    steerAngleSetpoint = steerEnc.GetPosition();
+    driveVelocitySetpoint = 0.0;
 }
 
 float SwerveModule::getSteerAngleSetpoint()
@@ -41,11 +37,14 @@ float SwerveModule::getSteerAngleSetpoint()
 void SwerveModule::setSteerAngleSetpoint(float setpt)
 {
     steerAngleSetpoint = setpt;
-    steerPID.SetReference(steerAngleSetpoint, rev::CANSparkMax::ControlType::kPosition);
 }
 
+/* Takes in input from 0 - 2pi
+ * 0 is the right, goes counterclockwise
+ *
+ */
 void SwerveModule::setSteerAngleSetpointShortestPath(float setpt)
-{ // Input must be from 0 to 2pi
+{
     double currAngle = steerEnc.GetPosition();
     if (fabs(setpt - currAngle) > ((2 * M_PI) - fabs(setpt - currAngle)))
     {
@@ -61,18 +60,16 @@ void SwerveModule::setDrivePositionSetpoint(float setpt)
 {
     drivePositionSetpoint = setpt;
     driveModePosition = true;
-    drivePID.SetReference(drivePositionSetpoint, rev::CANSparkMax::ControlType::kPosition);
-
 }
 
 void SwerveModule::setDriveVelocitySetpoint(float setpt)
 {
     driveVelocitySetpoint = setpt;
     driveModePosition = false;
-    drivePID.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kVelocity);
 }
 
-void SwerveModule::setModuleState(SwerveModuleState setpt) {
+void SwerveModule::setModuleState(SwerveModuleState setpt)
+{
     setDriveVelocitySetpoint(setpt.getSpeedMPS());
     setSteerAngleSetpoint(setpt.getRot2d().getRadians());
 }
@@ -95,42 +92,57 @@ void SwerveModule::run()
 {
     while (1)
     {
-        if (stopThread) //Thread is in standby mode
+        if (stopThread) // Thread is in standby mode
         {
-            
+
             steerMotor->StopMotor();
             driveMotor->StopMotor();
-            break;
-        } 
-        
-        else //Else 
+        }
+
+        else
         {
-            printf("%.6f", steerAngleSetpoint);
-            steerPID.SetReference(steerAngleSetpoint, rev::CANSparkMax::ControlType::kPosition);
+            double driveOutput = driveCTR.Calculate(driveEnc.GetVelocity(), driveVelocitySetpoint);
+            double steerOutput = steerCTR.Calculate(steerEnc.GetPosition(), steerAngleSetpoint);
 
             if (driveModePosition)
             {
-                drivePID.SetReference(drivePositionSetpoint, rev::CANSparkMax::ControlType::kPosition);
+                double driveOutput = driveCTR.Calculate(driveEnc.GetPosition(), drivePositionSetpoint);
             }
             else
             {
-                drivePID.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kPosition);
+                double driveOutput = driveCTR.Calculate(driveEnc.GetVelocity(), driveVelocitySetpoint);
             }
 
+            frc::SmartDashboard::PutNumber("driveOut", driveOutput);
+            frc::SmartDashboard::PutNumber("steerOut", steerOutput);
+
+            steerMotor->Set(steerOutput);
+            driveMotor->Set(driveOutput);
         }
-        
     }
 }
 
-Rotation2d SwerveModule::getSteerEncoder() {
+Rotation2d SwerveModule::getSteerEncoder()
+{
     return Rotation2d(steerEnc.GetPosition());
 }
 
-double SwerveModule::getDriveEncoder() {
+double SwerveModule::getDriveEncoderVel()
+{
+    return driveEnc.GetVelocity();
+}
+
+double SwerveModule::getDriveEncoderPos()
+{
     return driveEnc.GetPosition();
 }
 
-void SwerveModule::joinThread()
+void SwerveModule::standbyThread()
 {
     stopThread = true;
+}
+
+void SwerveModule::exitStandbyThread()
+{
+    stopThread = false;
 }
