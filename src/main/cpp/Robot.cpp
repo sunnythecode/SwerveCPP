@@ -20,17 +20,21 @@ void Robot::RobotPeriodic()
 
 void Robot::AutonomousInit()
 {
-  // testModule.setSteerAngleSetpoint(0.3);
-  testModule.setDriveVelocitySetpoint(60); // RPM
-  testModule.exitStandbyThread();
+  
+  
 }
-void Robot::AutonomousPeriodic() {}
+void Robot::AutonomousPeriodic() {
+  testModule.exitStandbyThread();
+  testModule.setDriveVelocitySetpoint(20); // RPM
+  testModule.setSteerAngleSetpoint(0.3);
+}
 
 void Robot::TeleopInit()
 {
-  testModule.exitStandbyThread();
+  //testModule.exitStandbyThread();
 }
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() {
+}
 
 void Robot::DisabledInit()
 {

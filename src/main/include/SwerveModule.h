@@ -20,7 +20,7 @@ public:
     rev::SparkMaxRelativeEncoder steerEnc = steerMotor->GetEncoder();
     rev::SparkMaxRelativeEncoder driveEnc = driveMotor->GetEncoder();
 
-    frc2::PIDController driveCTR{0.001, 0.0, 0.0};
+    frc2::PIDController driveCTR{0.01, 0.0, 0.0};
     frc2::PIDController steerCTR{0.5, 0.0, 0.0};
 
     double steerP = 0.3;

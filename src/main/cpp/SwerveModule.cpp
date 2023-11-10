@@ -106,17 +106,17 @@ void SwerveModule::run()
 
             if (driveModePosition)
             {
-                double driveOutput = driveCTR.Calculate(driveEnc.GetPosition(), drivePositionSetpoint);
-            }
-            else
-            {
-                double driveOutput = driveCTR.Calculate(driveEnc.GetVelocity(), driveVelocitySetpoint);
+                driveOutput = driveCTR.Calculate(driveEnc.GetPosition(), drivePositionSetpoint);
             }
 
+
+            steerOutput = 0.0;
+            driveOutput = 0.3;
             frc::SmartDashboard::PutNumber("driveOut", driveOutput);
             frc::SmartDashboard::PutNumber("steerOut", steerOutput);
 
             steerMotor->Set(steerOutput);
+            
             driveMotor->Set(driveOutput);
         }
     }
