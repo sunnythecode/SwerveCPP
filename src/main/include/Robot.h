@@ -30,8 +30,9 @@ public:
   void SimulationInit() override;
   void SimulationPeriodic() override;
 
-  frc::XboxController *mController = new frc::XboxController(0);
+  frc::XboxController *ctr = new frc::XboxController(0);
   SwerveModule testModule = SwerveModule(7, 17);
   std::thread testThread;
+  double startingPos = 0.0;
   // std::thread t = std::thread(&SwerveModule::run, &testModule);
 };

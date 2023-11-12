@@ -12,16 +12,16 @@ class SwerveModule
 {
     // private: <- removed for testing
 public:
-    int steerID = 7;
-    int driveID = 17;
+    int steerID = 1;
+    int driveID = 42;
     rev::CANSparkMax *steerMotor = new rev::CANSparkMax(steerID, rev::CANSparkMax::MotorType::kBrushless);
     rev::CANSparkMax *driveMotor = new rev::CANSparkMax(driveID, rev::CANSparkMax::MotorType::kBrushless);
 
     rev::SparkMaxRelativeEncoder steerEnc = steerMotor->GetEncoder();
     rev::SparkMaxRelativeEncoder driveEnc = driveMotor->GetEncoder();
 
-    frc2::PIDController driveCTR{0.01, 0.0, 0.0};
-    frc2::PIDController steerCTR{0.5, 0.0, 0.0};
+    frc2::PIDController driveCTR{0.001, 0.0, 0.0};
+    frc2::PIDController steerCTR{0.2, 0.0, 0.0};
 
     double steerP = 0.3;
     double steerI = 0;

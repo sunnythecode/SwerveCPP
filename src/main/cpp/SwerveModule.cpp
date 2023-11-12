@@ -109,9 +109,11 @@ void SwerveModule::run()
                 driveOutput = driveCTR.Calculate(driveEnc.GetPosition(), drivePositionSetpoint);
             }
 
+            frc::SmartDashboard::PutNumber("SteerSetpt", steerAngleSetpoint);
+            frc::SmartDashboard::PutNumber("DriveSetpt", driveVelocitySetpoint);
 
-            steerOutput = 0.0;
-            driveOutput = 0.3;
+
+
             frc::SmartDashboard::PutNumber("driveOut", driveOutput);
             frc::SmartDashboard::PutNumber("steerOut", steerOutput);
 

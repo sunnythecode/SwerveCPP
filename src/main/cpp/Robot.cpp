@@ -31,9 +31,15 @@ void Robot::AutonomousPeriodic() {
 
 void Robot::TeleopInit()
 {
-  //testModule.exitStandbyThread();
+  
+  testModule.exitStandbyThread();
+  testModule.setDriveVelocitySetpoint(0.0);
+  testModule.setSteerAngleSetpoint(0.0);
 }
 void Robot::TeleopPeriodic() {
+  startingPos += ctr->GetRightX();
+  testModule.setSteerAngleSetpoint(startingPos);
+  testModule.setDriveVelocitySetpoint(ctr->GetLeftY());
 }
 
 void Robot::DisabledInit()
