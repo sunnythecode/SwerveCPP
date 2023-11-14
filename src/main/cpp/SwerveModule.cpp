@@ -27,6 +27,14 @@ void SwerveModule::initMotors()
     // Setpoints to initial encoder positions/speeds
     steerAngleSetpoint = steerEnc.GetPosition();
     driveVelocitySetpoint = 0.0;
+
+    //Set PID values for REV Drive PID
+    m_pidController.SetP(kP);
+    m_pidController.SetI(kI);
+    m_pidController.SetD(kD);
+    m_pidController.SetIZone(kIz);
+    m_pidController.SetFF(kFF);
+    m_pidController.SetOutputRange(kMinOutput, kMaxOutput);
 }
 
 float SwerveModule::getSteerAngleSetpoint()
@@ -62,10 +70,23 @@ void SwerveModule::setDrivePositionSetpoint(float setpt)
     driveModePosition = true;
 }
 
+/**
+ * Set the drive motor velocity setpoint to input RPM
+ *
+ */
 void SwerveModule::setDriveVelocitySetpoint(float setpt)
 {
     driveVelocitySetpoint = setpt;
     driveModePosition = false;
+}
+
+/**
+ * Set the drive motor velocity setpoint to the input percent of max RPM
+ *
+ */
+void SwerveModule::setDrivePercentVelocitySetpoint(float setpt)
+{
+    setDrivePercentVelocitySetpoint(maxRPMFreeSpeed * setpt);
 }
 
 void SwerveModule::setModuleState(SwerveModuleState setpt)
@@ -101,25 +122,24 @@ void SwerveModule::run()
 
         else
         {
-            double driveOutput = driveCTR.Calculate(driveEnc.GetVelocity(), driveVelocitySetpoint);
+            // Steer Motor uses the FRC PID Library, so we can handle optimizations on our own
             double steerOutput = steerCTR.Calculate(steerEnc.GetPosition(), steerAngleSetpoint);
-
-            if (driveModePosition)
-            {
-                driveOutput = driveCTR.Calculate(driveEnc.GetPosition(), drivePositionSetpoint);
-            }
 
             frc::SmartDashboard::PutNumber("SteerSetpt", steerAngleSetpoint);
             frc::SmartDashboard::PutNumber("DriveSetpt", driveVelocitySetpoint);
-
-
-
-            frc::SmartDashboard::PutNumber("driveOut", driveOutput);
-            frc::SmartDashboard::PutNumber("steerOut", steerOutput);
+            frc::SmartDashboard::PutNumber("steerOut", steerOutput); // No display for driveOutput since its a REV PID :(
 
             steerMotor->Set(steerOutput);
-            
-            driveMotor->Set(driveOutput);
+
+            // Drive Motor uses the internal REV PID, since optimizations here are rarely needed
+            if (driveModePosition)
+            {
+                m_pidController.SetReference(drivePositionSetpoint, rev::CANSparkMax::ControlType::kPosition);
+            }
+            else
+            {
+                m_pidController.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kVelocity);
+            }
         }
     }
 }
