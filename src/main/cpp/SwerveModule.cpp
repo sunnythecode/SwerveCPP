@@ -1,6 +1,10 @@
 #include "SwerveModule.h"
 
-SwerveModule::SwerveModule(int steerMotorID, int driveMotorID)
+SwerveModule::SwerveModule(int steerMotorID, int driveMotorID) : steerMotor(new rev::CANSparkMax(steerMotorID, rev::CANSparkMax::MotorType::kBrushless)),
+                                                                 driveMotor(new rev::CANSparkMax(driveMotorID, rev::CANSparkMax::MotorType::kBrushless)),
+                                                                 steerEnc(steerMotor->GetEncoder()),
+                                                                 driveEnc(driveMotor->GetEncoder()),
+                                                                 m_pidController(driveMotor->GetPIDController())
 {
     steerID = steerMotorID;
     driveID = driveMotorID;
@@ -28,7 +32,7 @@ void SwerveModule::initMotors()
     steerAngleSetpoint = steerEnc.GetPosition();
     driveVelocitySetpoint = 0.0;
 
-    //Set PID values for REV Drive PID
+    // Set PID values for REV Drive PID
     m_pidController.SetP(kP);
     m_pidController.SetI(kI);
     m_pidController.SetD(kD);
@@ -86,7 +90,7 @@ void SwerveModule::setDriveVelocitySetpoint(float setpt)
  */
 void SwerveModule::setDrivePercentVelocitySetpoint(float setpt)
 {
-    setDrivePercentVelocitySetpoint(maxRPMFreeSpeed * setpt);
+    setDriveVelocitySetpoint(maxRPMFreeSpeed * setpt);
 }
 
 void SwerveModule::setModuleState(SwerveModuleState setpt)

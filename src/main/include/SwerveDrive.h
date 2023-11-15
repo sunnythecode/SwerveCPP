@@ -10,8 +10,8 @@
 // class SwerveDrive
 // {
 // private:
-//     SwerveModule mFrontLeft = SwerveModule(0, 1);
-//     SwerveModule mFrontRight = SwerveModule(2, 3);
+//     SwerveModule mFrontLeft = SwerveModule(11, 18);
+//     SwerveModule mFrontRight = SwerveModule(1, 3);
 //     SwerveModule mBackLeft = SwerveModule(4, 5);
 //     SwerveModule mBackRight = SwerveModule(6, 7);
 //     SwerveModule mModules[4] = {mFrontLeft, mFrontRight, mBackLeft, mBackRight};
@@ -34,5 +34,6 @@
 //     void Drive(double rightX, double leftX, double leftY, double fieldRelativeGyro);
 //     void setModuleVelocity(SwerveModule &mModule, double speed, double angleRadians);
 //     void initAllMotors();
+//     void initThreads();
 //     bool stopAllMotors();
 // };

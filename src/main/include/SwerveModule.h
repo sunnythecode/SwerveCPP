@@ -13,13 +13,13 @@ class SwerveModule
 {
     // private: <- removed for testing
 public:
-    int steerID = 11;
-    int driveID = 18;
-    rev::CANSparkMax *steerMotor = new rev::CANSparkMax(steerID, rev::CANSparkMax::MotorType::kBrushless);
-    rev::CANSparkMax *driveMotor = new rev::CANSparkMax(driveID, rev::CANSparkMax::MotorType::kBrushless);
+    int steerID;
+    int driveID;
+    rev::CANSparkMax *steerMotor;
+    rev::CANSparkMax *driveMotor;
 
-    rev::SparkMaxRelativeEncoder steerEnc = steerMotor->GetEncoder();
-    rev::SparkMaxRelativeEncoder driveEnc = driveMotor->GetEncoder();
+    rev::SparkMaxRelativeEncoder steerEnc;
+    rev::SparkMaxRelativeEncoder driveEnc;
 
     // PID Controller for Steer Motor
     frc2::PIDController steerCTR{0.2, 0.0, 0.0};
@@ -28,7 +28,7 @@ public:
     double kP = 6e-5, kI = 1e-6, kD = 0, kIz = 0, kFF = 0.000015, kMaxOutput = 1.0, kMinOutput = -1.0;
 
     // PID Controller for Drive Motor
-    rev::SparkMaxPIDController m_pidController = driveMotor->GetPIDController();
+    rev::SparkMaxPIDController m_pidController;
 
     float driveVelocitySetpoint;
     float drivePositionSetpoint;

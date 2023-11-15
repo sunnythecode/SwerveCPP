@@ -12,7 +12,6 @@
 //  *
 //  */
 
-
 // void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldRelativeGyro)
 // {
 //     /* Idea here is that controller input is a circle
@@ -20,9 +19,8 @@
 //      * At pi/4 rad, the x, y both are root(2)
 //      */
 
-//     //Convert field relative desired velocities to robot relative desired velocities
-//     // AKA fromFieldRelativeSpeeds
-    
+//     // Convert field relative desired velocities to robot relative desired velocities
+//     //  AKA fromFieldRelativeSpeeds
 
 //     double Vx = leftX * maxSpeed;
 //     double Vy = leftY * maxSpeed;
@@ -31,15 +29,12 @@
 //     ChassisSpeeds desiredSpeeds = ChassisSpeeds::fromFieldRelativeSpeeds(Vx, Vy, omega, fieldRelativeGyro);
 
 //     std::vector<SwerveModuleState> moduleStates = m_kinematics.toSwerveStates(desiredSpeeds);
-    
+
 //     // mFrontLeft.setModuleState(moduleStates[0]);
 //     // mFrontRight.setModuleState(moduleStates[1]);
 //     // mBackRight.setModuleState(moduleStates[2]);
 //     // mBackLeft.setModuleState(moduleStates[3]);
-
 // }
-
-
 
 // void SwerveDrive::setModuleVelocity(SwerveModule &mModule, double speed, double angleRadians)
 // {
@@ -52,7 +47,14 @@
 //     for (int i = 0; i < 4; i++)
 //     {
 //         mModules[i].initMotors();
-//         moduleThreads[i].detach();
+//     }
+// }
+
+// void SwerveDrive::initThreads()
+// {
+//     for (int i = 0; i < 4; i++)
+//     {
+//         mModules[i].exitStandbyThread();
 //     }
 // }
 
@@ -60,8 +62,7 @@
 // {
 //     for (int i = 0; i < 4; i++)
 //     {
-//         mModules[i].joinThread();
-//         moduleThreads[i].join();
+//         mModules[i].standbyThread();
 //     }
 //     return true;
 // }
