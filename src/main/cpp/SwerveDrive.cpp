@@ -24,13 +24,33 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
     // AKA fromFieldRelativeSpeeds
     
 
-    double Vx = leftX * maxSpeed;
-    double Vy = leftY * maxSpeed;
-    double omega = rightX * maxRot;
+    // double Vx = leftX * maxSpeed;
+    // double Vy = leftY * maxSpeed;
+    // double omega = rightX * maxRot;
 
-    ChassisSpeeds desiredSpeeds = ChassisSpeeds::fromFieldRelativeSpeeds(Vx, Vy, omega, fieldRelativeGyro);
+    // Simple Directional Swerve - Assume are modules facing forward
+    double vel_mag = sqrt((leftX * leftX) + (leftY + leftY)) / sqrt(2);
+    double angle = atan2(leftY, leftX);
 
-    std::vector<SwerveModuleState> moduleStates = m_kinematics.toSwerveStates(desiredSpeeds);
+    SwerveModuleState setpts(vel_mag, angle);
+
+    mFrontLeft.setModuleState(setpts);
+    mFrontRight.setModuleState(setpts);
+    mBackRight.setModuleState(setpts);
+    mBackLeft.setModuleState(setpts);
+
+
+    
+    
+
+
+
+
+
+
+    // ChassisSpeeds desiredSpeeds = ChassisSpeeds::fromFieldRelativeSpeeds(Vx, Vy, omega, fieldRelativeGyro);
+
+    // std::vector<SwerveModuleState> moduleStates = m_kinematics.toSwerveStates(desiredSpeeds);
     
     // mFrontLeft.setModuleState(moduleStates[0]);
     // mFrontRight.setModuleState(moduleStates[1]);
@@ -52,16 +72,24 @@ void SwerveDrive::initAllMotors()
     for (int i = 0; i < 4; i++)
     {
         mModules[i].initMotors();
-        moduleThreads[i].detach();
+        moduleThreads[i] = std::thread(&SwerveModule::run, &mModules[i]);
     }
 }
 
-bool SwerveDrive::stopAllMotors()
+void SwerveDrive::enableMotors() 
+{
+    for (int i = 0; i < 4; i++) 
+    {
+        mModules[i].exitStandbyThread();
+    }
+
+}
+
+bool SwerveDrive::disableMotors()
 {
     for (int i = 0; i < 4; i++)
     {
-        mModules[i].joinThread();
-        moduleThreads[i].join();
+        mModules[i].standbyThread();
     }
     return true;
 }

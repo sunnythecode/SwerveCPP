@@ -7,43 +7,37 @@
 
 void Robot::RobotInit()
 {
-  testModule.initMotors();
-  testThread = std::thread(&SwerveModule::run, &testModule); // Instantiating pre-declared thread
+  mSwerve.initAllMotors();
 }
 void Robot::RobotPeriodic()
 {
-  // Print the steer encoder position and drive encoder velocity
-  frc::SmartDashboard::PutNumber("Steer", testModule.getSteerEncoder().getRadians());
-  frc::SmartDashboard::PutNumber("Velocity", testModule.getDriveEncoderVel());
 }
 
 void Robot::AutonomousInit()
 {
-  testModule.exitStandbyThread(); // Start running motor threads
+  mSwerve.enableMotors();
 }
 void Robot::AutonomousPeriodic()
 {
-  testModule.setDriveVelocitySetpoint(100); // RPM
-  testModule.setSteerAngleSetpoint(0.3);
 }
 void Robot::TeleopInit()
 {
-  testModule.exitStandbyThread(); // Start running motor threads
-  testModule.setDriveVelocitySetpoint(0.0);
-  testModule.setSteerAngleSetpoint(0.0);
+  mSwerve.enableMotors();
 }
 void Robot::TeleopPeriodic()
 {
-  // Increment the steer motor angle by our controller's right X value
-  testModule.setSteerAngleSetpoint(testModule.getSteerAngleSetpoint() + ctr->GetRightX());
-  // Set our drive motor PID setpoint to maxRPM * left Y value
-  testModule.setDrivePercentVelocitySetpoint(ctr->GetLeftY());
+  // // Increment the steer motor angle by our controller's right X value
+  // testModule.setSteerAngleSetpoint(testModule.getSteerAngleSetpoint() + ctr->GetRightX());
+  // // Set our drive motor PID setpoint to maxRPM * left Y value
+  // testModule.setDrivePercentVelocitySetpoint(ctr->GetLeftY());
+
+  mSwerve.Drive(ctr->GetRightX(), ctr->GetLeftX(), ctr->GetLeftY(), 0.0);
 }
 
 void Robot::DisabledInit()
 {
   // Put module in standby(stop motors and wait)
-  testModule.standbyThread();
+  mSwerve.disableMotors();
 }
 void Robot::DisabledPeriodic() {}
 

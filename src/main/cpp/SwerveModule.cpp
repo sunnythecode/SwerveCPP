@@ -82,6 +82,7 @@ void SwerveModule::setDriveVelocitySetpoint(float setpt)
 
 /**
  * Set the drive motor velocity setpoint to the input percent of max RPM
+ * setpt must be between -1 and 1
  *
  */
 void SwerveModule::setDrivePercentVelocitySetpoint(float setpt)

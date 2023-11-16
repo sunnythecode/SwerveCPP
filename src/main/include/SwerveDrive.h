@@ -16,10 +16,7 @@ private:
     SwerveModule mBackRight = SwerveModule(6, 7);
     SwerveModule mModules[4] = {mFrontLeft, mFrontRight, mBackLeft, mBackRight};
 
-    std::thread moduleThreads[4] = {std::thread(&SwerveModule::run, &mFrontLeft),
-                                    std::thread(&SwerveModule::run, &mFrontRight),
-                                    std::thread(&SwerveModule::run, &mBackLeft),
-                                    std::thread(&SwerveModule::run, &mBackRight)};
+    std::thread moduleThreads[4];
 
     float maxSpeed = 1.5;
     float maxRot = 1; // Rad / sec?
@@ -34,5 +31,6 @@ public:
     void Drive(double rightX, double leftX, double leftY, double fieldRelativeGyro);
     void setModuleVelocity(SwerveModule &mModule, double speed, double angleRadians);
     void initAllMotors();
-    bool stopAllMotors();
+    void enableMotors();
+    bool disableMotors();
 };
