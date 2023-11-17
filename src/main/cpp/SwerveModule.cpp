@@ -1,6 +1,10 @@
 #include "SwerveModule.h"
 
-SwerveModule::SwerveModule(int steerMotorID, int driveMotorID)
+SwerveModule::SwerveModule(int steerMotorID, int driveMotorID) : steerMotor(new rev::CANSparkMax(steerMotorID, rev::CANSparkMax::MotorType::kBrushless)),
+                                                                 driveMotor(new rev::CANSparkMax(driveMotorID, rev::CANSparkMax::MotorType::kBrushless)),
+                                                                 steerEnc(steerMotor->GetEncoder()),
+                                                                 driveEnc(driveMotor->GetEncoder()),
+                                                                 m_pidController(driveMotor->GetPIDController())
 {
     steerID = steerMotorID;
     driveID = driveMotorID;
@@ -28,7 +32,7 @@ void SwerveModule::initMotors()
     steerAngleSetpoint = steerEnc.GetPosition();
     driveVelocitySetpoint = 0.0;
 
-    //Set PID values for REV Drive PID
+    // Set PID values for REV Drive PID
     m_pidController.SetP(kP);
     m_pidController.SetI(kI);
     m_pidController.SetD(kD);
@@ -82,17 +86,18 @@ void SwerveModule::setDriveVelocitySetpoint(float setpt)
 
 /**
  * Set the drive motor velocity setpoint to the input percent of max RPM
- * setpt must be between -1 and 1
  *
  */
 void SwerveModule::setDrivePercentVelocitySetpoint(float setpt)
 {
-    setDrivePercentVelocitySetpoint(maxRPMFreeSpeed * setpt);
+    setDriveVelocitySetpoint(maxRPMFreeSpeed * setpt);
 }
 
 void SwerveModule::setModuleState(SwerveModuleState setpt)
 {
-    setDriveVelocitySetpoint(setpt.getSpeedMPS());
+    frc::SmartDashboard::PutNumber("VelocitySetpoint", setpt.getSpeedMPS());
+    frc::SmartDashboard::PutNumber("SteerAngleSetpoint", setpt.getRot2d().getRadians());
+    setDrivePercentVelocitySetpoint(setpt.getSpeedMPS());
     setSteerAngleSetpoint(setpt.getRot2d().getRadians());
 }
 
@@ -126,9 +131,9 @@ void SwerveModule::run()
             // Steer Motor uses the FRC PID Library, so we can handle optimizations on our own
             double steerOutput = steerCTR.Calculate(steerEnc.GetPosition(), steerAngleSetpoint);
 
-            frc::SmartDashboard::PutNumber("SteerSetpt", steerAngleSetpoint);
-            frc::SmartDashboard::PutNumber("DriveSetpt", driveVelocitySetpoint);
-            frc::SmartDashboard::PutNumber("steerOut", steerOutput); // No display for driveOutput since its a REV PID :(
+            //frc::SmartDashboard::PutNumber("SteerSetpt", steerAngleSetpoint);
+            //frc::SmartDashboard::PutNumber("DriveSetpt", driveVelocitySetpoint);
+            //frc::SmartDashboard::PutNumber("steerOut", steerOutput); // No display for driveOutput since its a REV PID :(
 
             steerMotor->Set(steerOutput);
 

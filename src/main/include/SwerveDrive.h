@@ -10,10 +10,10 @@
 class SwerveDrive
 {
 private:
-    SwerveModule mFrontLeft = SwerveModule(0, 1);
-    SwerveModule mFrontRight = SwerveModule(2, 3);
-    SwerveModule mBackLeft = SwerveModule(4, 5);
-    SwerveModule mBackRight = SwerveModule(6, 7);
+    SwerveModule mFrontLeft = SwerveModule(10, 3);
+    SwerveModule mFrontRight = SwerveModule(11, 18);
+    SwerveModule mBackLeft = SwerveModule(1, 42);
+    SwerveModule mBackRight = SwerveModule(4, 16);
     SwerveModule mModules[4] = {mFrontLeft, mFrontRight, mBackLeft, mBackRight};
 
     std::thread moduleThreads[4];

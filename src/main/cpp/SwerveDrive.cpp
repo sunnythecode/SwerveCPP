@@ -29,12 +29,16 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
     // double omega = rightX * maxRot;
 
     // Simple Directional Swerve - Assume are modules facing forward
-    double vel_mag = sqrt((leftX * leftX) + (leftY + leftY)) / sqrt(2);
+    double vel_mag = sqrt((leftX * leftX) + (leftY * leftY));
     double angle = atan2(leftY, leftX);
 
     SwerveModuleState setpts(vel_mag, angle);
 
-    mFrontLeft.setModuleState(setpts);
+    frc::SmartDashboard::PutNumber("VelMag", vel_mag);
+    frc::SmartDashboard::PutNumber("Angle", angle);
+
+    //mFrontLeft.setModuleState(setpts);
+    
     mFrontRight.setModuleState(setpts);
     mBackRight.setModuleState(setpts);
     mBackLeft.setModuleState(setpts);
