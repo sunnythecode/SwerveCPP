@@ -15,6 +15,7 @@ void SwerveModule::initMotors()
     // Resetting Motor settings, Encoders, putting it in brake mode
     steerMotor->RestoreFactoryDefaults();
     driveMotor->RestoreFactoryDefaults();
+    steerMotor->SetInverted(true);
     steerEnc.SetPosition(0);
     driveEnc.SetPosition(0);
     steerMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
@@ -39,6 +40,8 @@ void SwerveModule::initMotors()
     m_pidController.SetIZone(kIz);
     m_pidController.SetFF(kFF);
     m_pidController.SetOutputRange(kMinOutput, kMaxOutput);
+
+    steerCTR.EnableContinuousInput(0, 2 * M_PI);
 }
 
 float SwerveModule::getSteerAngleSetpoint()
