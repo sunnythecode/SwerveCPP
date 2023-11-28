@@ -6,6 +6,7 @@
 
 #include <frc/TimedRobot.h>
 #include <frc/XboxController.h>
+#include "ShuffleUI.h"
 #include "SwerveModule.h"
 #include <thread>
 
