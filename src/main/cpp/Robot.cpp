@@ -17,8 +17,9 @@ void Robot::RobotInit()
 void Robot::RobotPeriodic()
 {
   // Print the steer encoder position and drive encoder velocity
-  frc::SmartDashboard::PutNumber("Steer", testModule.getSteerEncoder().getRadians());
-  frc::SmartDashboard::PutNumber("Velocity", testModule.getDriveEncoderVel());
+  ShuffleUI::MakeWidget("SteerPosition", "TestModule1", testModule.getSteerEncoder().getRadians());
+  ShuffleUI::MakeWidget("DriveVelocity", "TestModule1", testModule.getDriveEncoderVel());
+
 }
 
 void Robot::AutonomousInit()
