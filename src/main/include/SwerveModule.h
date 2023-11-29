@@ -8,6 +8,8 @@
 #include <frc/controller/PIDController.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <rev/SparkMaxPIDController.h>
+#include <string>
+
 
 class SwerveModule
 {

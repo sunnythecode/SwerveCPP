@@ -9,6 +9,7 @@
 #include "ShuffleUI.h"
 #include "SwerveModule.h"
 #include <thread>
+#include "SwerveDrive.h"
 
 class Robot : public frc::TimedRobot
 {
@@ -32,10 +33,14 @@ public:
   void SimulationPeriodic() override;
 
   frc::XboxController *ctr = new frc::XboxController(0);
-  SwerveModule testModule = SwerveModule(4, 16);
-  SwerveModule testModule2 = SwerveModule(1, 42);
-  SwerveModule testModule3 = SwerveModule(11, 18);
-  std::thread testThread;
-  std::thread testThread2;
-  std::thread testThread3;
+  SwerveDrive mDrive = SwerveDrive();
+  
+
+  // Test code below that I'm leaving in case I need it later
+  //SwerveModule testModule = SwerveModule(4, 16);
+  //SwerveModule testModule2 = SwerveModule(1, 42);
+  //SwerveModule testModule3 = SwerveModule(11, 18);
+  //std::thread testThread;
+  //std::thread testThread2;
+  //std::thread testThread3;
 };

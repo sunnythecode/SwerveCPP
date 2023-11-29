@@ -130,8 +130,9 @@ void SwerveModule::run()
         else
         {
             // Steer Motor uses the FRC PID Library, so we can handle optimizations on our own
+            frc::SmartDashboard::PutNumber("SteerSetpt" + std::to_string(steerID), steerAngleSetpoint);
             double steerOutput = steerCTR.Calculate(steerEnc.GetPosition(), steerAngleSetpoint);
-
+            frc::SmartDashboard::PutNumber("SteerOutput" + std::to_string(steerID), steerOutput);
             steerMotor->Set(steerOutput);
 
             // Drive Motor uses the internal REV PID, since optimizations here are rarely needed
