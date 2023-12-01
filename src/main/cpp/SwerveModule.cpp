@@ -1,8 +1,8 @@
 #include "SwerveModule.h"
 
-SwerveModule::SwerveModule(int steerMotorID, int driveMotorID) : steerMotor(new rev::CANSparkMax(steerMotorID, rev::CANSparkMax::MotorType::kBrushless)),
+SwerveModule::SwerveModule(int steerMotorID, int driveMotorID, int CAN_ID) : steerMotor(new rev::CANSparkMax(steerMotorID, rev::CANSparkMax::MotorType::kBrushless)),
                                                                  driveMotor(new rev::CANSparkMax(driveMotorID, rev::CANSparkMax::MotorType::kBrushless)),
-                                                                 steerEnc(steerMotor->GetEncoder()),
+                                                                 steerEnc(CAN_Coder(CAN_ID)),
                                                                  driveEnc(driveMotor->GetEncoder()),
                                                                  m_pidController(driveMotor->GetPIDController())
 {
@@ -15,8 +15,8 @@ void SwerveModule::initMotors()
     // Resetting Motor settings, Encoders, putting it in brake mode
     steerMotor->RestoreFactoryDefaults();
     driveMotor->RestoreFactoryDefaults();
-    steerMotor->SetInverted(true);
-    steerEnc.SetPosition(0);
+    steerMotor->SetInverted(false);
+    steerEnc.encoder.SetPosition(0);
     driveEnc.SetPosition(0);
     steerMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     driveMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
@@ -26,11 +26,10 @@ void SwerveModule::initMotors()
     driveMotor->SetSmartCurrentLimit(20);
 
     // Conversion factor from Rotations of motor, which is nothing for now
-    steerEnc.SetPositionConversionFactor(1.0);
     driveEnc.SetPositionConversionFactor(1.0);
 
     // Setpoints to initial encoder positions/speeds
-    steerAngleSetpoint = steerEnc.GetPosition();
+    steerAngleSetpoint = steerEnc.getPosition().getRadians();
     driveVelocitySetpoint = 0.0;
 
     // Set PID values for REV Drive PID
@@ -60,7 +59,7 @@ void SwerveModule::setSteerAngleSetpoint(float setpt)
  */
 void SwerveModule::setSteerAngleSetpointShortestPath(float setpt)
 {
-    double currAngle = steerEnc.GetPosition();
+    double currAngle = steerEnc.getPosition().getRadians();
     if (fabs(setpt - currAngle) > ((2 * M_PI) - fabs(setpt - currAngle)))
     {
         steerAngleSetpoint = setpt - (2 * M_PI);
@@ -129,10 +128,12 @@ void SwerveModule::run()
 
         else
         {
-            // Steer Motor uses the FRC PID Library, so we can handle optimizations on our own
-            frc::SmartDashboard::PutNumber("SteerSetpt" + std::to_string(steerID), steerAngleSetpoint);
-            double steerOutput = steerCTR.Calculate(steerEnc.GetPosition(), steerAngleSetpoint);
-            frc::SmartDashboard::PutNumber("SteerOutput" + std::to_string(steerID), steerOutput);
+            frc::SmartDashboard::PutNumber("SteerSetpoint", steerAngleSetpoint);
+            frc::SmartDashboard::PutNumber("SteerPos", steerEnc.getPosition().getRadians());
+
+            double steerOutput = steerCTR.Calculate(steerEnc.getPosition().getRadians(), steerAngleSetpoint);
+            //frc::SmartDashboard::PutNumber("SteerOutput" + std::to_string(steerID), steerOutput);
+            frc::SmartDashboard::PutNumber("SteerOutput", steerOutput);
             steerMotor->Set(steerOutput);
 
             // Drive Motor uses the internal REV PID, since optimizations here are rarely needed
@@ -150,7 +151,7 @@ void SwerveModule::run()
 
 Rotation2d SwerveModule::getSteerEncoder()
 {
-    return Rotation2d(steerEnc.GetPosition());
+    return steerEnc.getPosition();
 }
 
 double SwerveModule::getDriveEncoderVel()

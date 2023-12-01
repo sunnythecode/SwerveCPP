@@ -1,3 +1,5 @@
+#pragma once
+
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <networktables/NetworkTableEntry.h>
 #include <vector>

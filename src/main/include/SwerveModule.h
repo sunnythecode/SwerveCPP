@@ -1,14 +1,18 @@
 #pragma once
 
-#include <rev/CANSparkMax.h>
 #include <thread>
-#include "Translation2d.h"
-#include "SwerveModuleState.h"
-#include "Constants.h"
+#include <string>
+
 #include <frc/controller/PIDController.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <rev/SparkMaxPIDController.h>
-#include <string>
+#include <rev/CANSparkMax.h>
+
+#include "CAN_Coder.h"
+#include "Translation2d.h"
+#include "SwerveModuleState.h"
+#include "Constants.h"
+
 
 
 class SwerveModule
@@ -19,8 +23,7 @@ public:
     int driveID;
     rev::CANSparkMax *steerMotor;
     rev::CANSparkMax *driveMotor;
-
-    rev::SparkMaxRelativeEncoder steerEnc;
+    CAN_Coder steerEnc;
     rev::SparkMaxRelativeEncoder driveEnc;
 
     // PID Controller for Steer Motor
@@ -40,7 +43,7 @@ public:
     const int maxRPMFreeSpeed = 5700;
 
     // public:
-    SwerveModule(int steerMotorID, int driveMotorID); // To be implemented, unable to initialize motors here
+    SwerveModule(int steerMotorID, int driveMotorID, int CAN_ID); // To be implemented, unable to initialize motors here
     void initMotors();
     float getSteerAngleSetpoint();
     void setSteerAngleSetpoint(float setpt);

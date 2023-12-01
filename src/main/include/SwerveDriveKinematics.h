@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <frc/EigenCore.h>
 #include "Translation2d.h"
