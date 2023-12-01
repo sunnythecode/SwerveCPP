@@ -16,13 +16,27 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
 {
 
 
-    if ((fabs(leftX) < 0.1) && (fabs(leftY) < 0.1)) {
-        // do nothing if there is no left stick input
-        // Technically this needs to have code for rotating in place, haven't done it yet
-        mBackRight.setDrivePercentVelocitySetpoint(0.0);
-        mBackLeft.setDrivePercentVelocitySetpoint(0.0);
-        mFrontRight.setDrivePercentVelocitySetpoint(0.0);
-        mFrontLeft.setDrivePercentVelocitySetpoint(0.0);
+    if ((fabs(leftX) < 0.1) && (fabs(leftY) < 0.1)) { // No magnitude
+
+        if (fabs(rightX) < 0.1) {
+            // No movement
+            mBackRight.setDrivePercentVelocitySetpoint(0.0);
+            mBackLeft.setDrivePercentVelocitySetpoint(0.0);
+            mFrontRight.setDrivePercentVelocitySetpoint(0.0);
+            mFrontLeft.setDrivePercentVelocitySetpoint(0.0);
+        } 
+        else
+        {
+            // Rotate in Place
+            //Rotational Positions
+            orientModules(M_PI / 4, -M_PI / 4, -M_PI / 4, M_PI / 4);
+            // No need for kinematics, just use rightX as a percent speed
+            mBackRight.setDrivePercentVelocitySetpoint(rightX);
+            //mBackLeft.setDrivePercentVelocitySetpoint(rightX);
+            mFrontRight.setDrivePercentVelocitySetpoint(rightX);
+            mFrontLeft.setDrivePercentVelocitySetpoint(rightX);
+
+        }
     } else {
         // Creating desired Chassis speeds from controller input
         double Vx = leftX * maxSpeed;
@@ -41,21 +55,17 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
           // double mag = sqrt((ctr->GetLeftY() * ctr->GetLeftY()) + (ctr->GetLeftX() * ctr->GetLeftX()));
 
 
-
+        // Convert angle reference to 0 is in front
+        // Convert ft/s to motor RPM(x356.25)
         for (int i = 0; i < 4; i++) {
-            SwerveModuleState temp = SwerveModuleState(moduleStates[i].getSpeedMPS(), convertAngleReference(moduleStates[i].getRot2d().getRadians()));
+            SwerveModuleState temp = SwerveModuleState(moduleStates[i].getSpeedMPS() * 356.25, convertAngleReference(moduleStates[i].getRot2d().getRadians()));
             moduleStates[i] = temp;
         }
-        
-
-        
-        //Working with one module for now
-        //mBackRight.setModuleState(state);
 
         mFrontLeft.setModuleState(moduleStates[0]);
         mFrontRight.setModuleState(moduleStates[1]);
         mBackRight.setModuleState(moduleStates[2]);
-        mBackLeft.setModuleState(moduleStates[3]);
+        //mBackLeft.setModuleState(moduleStates[3]);
 
     }
 
@@ -117,4 +127,14 @@ double SwerveDrive::convertAngleReference(double angle) {
 
     return angle;
     
+}
+/**
+ * Enter radians
+*/
+void SwerveDrive::orientModules(double FL, double FR, double BL, double BR) {
+    mBackRight.setSteerAngleSetpoint(BR);
+    mBackLeft.setSteerAngleSetpoint(BL);
+    mFrontRight.setSteerAngleSetpoint(FR);
+    mFrontLeft.setSteerAngleSetpoint(FL);
+
 }

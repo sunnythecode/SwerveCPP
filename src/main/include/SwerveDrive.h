@@ -28,7 +28,8 @@ private:
     // Declaring threads, initializing them in initAllMotors()
     
 
-    float maxSpeed = 5700; // This is the NEO max RPM, eventually need to convert this
+    //float maxSpeed = 5700; // This is the NEO max RPM, eventually need to convert this
+    float maxSpeed = 16; // feet/sec, since 5700 RPM = 16 ft/s * 356.25, we have conversion factor
     float maxRot = 1.0; // Rad / sec? - not working with rn
 
     float trackWidth = 2.375; // feet
@@ -44,4 +45,5 @@ public:
     void enableThreads();
     bool stopAllMotors();
     double convertAngleReference(double input);
+    void orientModules(double FL, double FR, double BL, double BR);
 };

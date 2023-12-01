@@ -9,6 +9,7 @@
 #include "ShuffleUI.h"
 #include <thread>
 #include "SwerveDrive.h"
+#include "NavX.h"
 //#include "SwerveModule.h"
 
 class Robot : public frc::TimedRobot
@@ -34,6 +35,7 @@ public:
 
   frc::XboxController *ctr = new frc::XboxController(0);
   SwerveDrive mDrive = SwerveDrive();
+  NavX mGyro = NavX();
   
 
   // Test code below that I'm leaving in case I need it later

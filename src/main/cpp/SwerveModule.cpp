@@ -48,9 +48,13 @@ float SwerveModule::getSteerAngleSetpoint()
     return steerAngleSetpoint;
 }
 
+/**
+ * Enter in radians
+ * Will modulus it to 0 - 2pi
+*/
 void SwerveModule::setSteerAngleSetpoint(float setpt)
 {
-    steerAngleSetpoint = setpt;
+    steerAngleSetpoint = Rotation2d::radiansBound(setpt);
 }
 
 /* Takes in input from 0 - 2pi

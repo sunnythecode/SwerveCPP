@@ -46,5 +46,12 @@ public:
         return radians;
     }
 
+    static double radiansBound(double input_radians) {
+        double deg = (180 / M_PI) * input_radians;
+        double output = fmod(fmod(deg, 360) + 360, 360) * (M_PI / 180);
+        return output;
+
+    }
+
 
 };
