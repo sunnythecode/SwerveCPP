@@ -20,7 +20,7 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
         // do nothing if there is no left stick input
         // Technically this needs to have code for rotating in place, haven't done it yet
         mBackRight.setDrivePercentVelocitySetpoint(0.0);
-        //mBackLeft.setDrivePercentVelocitySetpoint(0.0);
+        mBackLeft.setDrivePercentVelocitySetpoint(0.0);
         mFrontRight.setDrivePercentVelocitySetpoint(0.0);
         mFrontLeft.setDrivePercentVelocitySetpoint(0.0);
     } else {
@@ -55,7 +55,7 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
         mFrontLeft.setModuleState(moduleStates[0]);
         mFrontRight.setModuleState(moduleStates[1]);
         mBackRight.setModuleState(moduleStates[2]);
-        //mBackLeft.setModuleState(moduleStates[3]);
+        mBackLeft.setModuleState(moduleStates[3]);
 
     }
 
