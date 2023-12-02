@@ -7,27 +7,21 @@
 
 void Robot::RobotInit()
 {
-  // testModule.initMotors();
-  // testThread = std::thread(&SwerveModule::run, &testModule);
   mDrive.initAllMotors();
 }
 void Robot::RobotPeriodic()
 {
-
 }
 
 void Robot::AutonomousInit()
 {
-  //testModule.exitStandbyThread();
   mDrive.enableThreads();
 }
 void Robot::AutonomousPeriodic()
 {
-
 }
 void Robot::TeleopInit()
 {
-  //testModule.exitStandbyThread();
   mDrive.enableThreads();
 }
 void Robot::TeleopPeriodic()
@@ -38,7 +32,6 @@ void Robot::TeleopPeriodic()
 
 void Robot::DisabledInit()
 {
-  //testModule.standbyThread();
   mDrive.stopAllMotors();
 }
 void Robot::DisabledPeriodic() {}

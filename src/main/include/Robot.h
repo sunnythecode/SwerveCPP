@@ -10,7 +10,6 @@
 #include <thread>
 #include "SwerveDrive.h"
 #include "NavX.h"
-//#include "SwerveModule.h"
 
 class Robot : public frc::TimedRobot
 {
@@ -36,13 +35,4 @@ public:
   frc::XboxController *ctr = new frc::XboxController(0);
   SwerveDrive mDrive = SwerveDrive();
   NavX mGyro = NavX();
-  
-
-  // Test code below that I'm leaving in case I need it later
-  //SwerveModule testModule = SwerveModule(4, 16);
-  //SwerveModule testModule = SwerveModule(1, 42, 0);
-  //SwerveModule testModule3 = SwerveModule(11, 18);
-  //std::thread testThread;
-  //std::thread testThread2;
-  //std::thread testThread3;
 };

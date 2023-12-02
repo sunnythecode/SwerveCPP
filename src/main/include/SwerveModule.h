@@ -13,24 +13,24 @@
 #include "SwerveModuleState.h"
 #include "Constants.h"
 
-
-
 class SwerveModule
 {
     // private: <- removed for testing
 public:
     int steerID;
     int driveID;
+
     rev::CANSparkMax *steerMotor;
     rev::CANSparkMax *driveMotor;
+
     CAN_Coder steerEnc;
     rev::SparkMaxRelativeEncoder driveEnc;
 
     // PID Controller for Steer Motor
-    frc2::PIDController steerCTR{0.2, 0.0, 0.0};
+    frc2::PIDController steerCTR{steerP, steerI, steerD};
 
     // REV Default Velocity PID values(Drive Motor)
-    double kP = 6e-5, kI = 1e-6, kD = 0, kIz = 0, kFF = 0.000015, kMaxOutput = 1.0, kMinOutput = -1.0;
+    double kP = revkP, kI = revkI, kD = revkD, kIz = revkIz, kFF = revkFF, kMaxOutput = revkMaxOutput, kMinOutput = revkMinOutput;
 
     // PID Controller for Drive Motor
     rev::SparkMaxPIDController m_pidController;
@@ -40,10 +40,10 @@ public:
     float steerAngleSetpoint;
     bool driveModePosition = false;
     bool stopThread = false;
-    const int maxRPMFreeSpeed = 5700;
+    const int maxRPMFreeSpeed = moduleMaxRPM;
 
     // public:
-    SwerveModule(int steerMotorID, int driveMotorID, int CAN_ID); // To be implemented, unable to initialize motors here
+    SwerveModule(int steerMotorID, int driveMotorID, int CAN_ID);
     void initMotors();
     float getSteerAngleSetpoint();
     void setSteerAngleSetpoint(float setpt);

@@ -4,6 +4,7 @@
 #include "Rotation2d.h"
 #include "ChassisSpeeds.h"
 #include "Translation2d.h"
+#include "Constants.h"
 #include "SwerveDriveKinematics.h"
 #include "SwerveModuleState.h"
 #include <thread>
@@ -11,30 +12,21 @@
 class SwerveDrive
 {
 private:
-    SwerveModule mFrontLeft = SwerveModule(11, 18, 3);
-    SwerveModule mBackRight = SwerveModule(1, 42, 0);
-    SwerveModule mBackLeft = SwerveModule(3, 10, 2); 
-    SwerveModule mFrontRight = SwerveModule(4, 16, 1);
+    SwerveModule mFrontLeft = SwerveModule(FLsteerID, FLdriveID, FL_CAN_ID);
+    SwerveModule mFrontRight = SwerveModule(FRsteerID, FRdriveID, FR_CAN_ID);
+    SwerveModule mBackLeft = SwerveModule(BLsteerID, BLdriveID, BL_CAN_ID);
+    SwerveModule mBackRight = SwerveModule(BRsteerID, BRdriveID, BR_CAN_ID);
 
+    // Threas for each Module
     std::thread FLthread;
     std::thread FRthread;
     std::thread BLthread;
     std::thread BRthread;
 
+    float maxSpeed = moduleMaxFPS; // feet/sec, since 5700 RPM = 16 ft/s * 356.25, we have conversion factor
+    float maxRot = moduleMaxRot;
 
-
-    //SwerveModule mModules[4] = {mFrontLeft, mFrontRight, mBackLeft, mBackRight};
-
-    // Declaring threads, initializing them in initAllMotors()
-    
-
-    //float maxSpeed = 5700; // This is the NEO max RPM, eventually need to convert this
-    float maxSpeed = 16; // feet/sec, since 5700 RPM = 16 ft/s * 356.25, we have conversion factor
-    float maxRot = 1.0; // Rad / sec? - not working with rn
-
-    float trackWidth = 2.375; // feet
-    float wheelBase = 2.375; // feet
-
+    // Kinematic module: wheelPs creates x,y coordinates for each module with 0,0 being center of the robot
     std::vector<Translation2d> wheelPs = {Translation2d(trackWidth, wheelBase), Translation2d(trackWidth, -wheelBase), Translation2d(-trackWidth, wheelBase), Translation2d(-trackWidth, -wheelBase)};
     SwerveDriveKinematics m_kinematics = SwerveDriveKinematics(wheelPs);
 
