@@ -20,7 +20,7 @@ void SwerveModule::initMotors()
     steerMotor->SetInverted(false);
 
     // To be changed to absolute position
-    steerEnc.encoder.SetPosition(0);
+    steerEnc.encoder.SetPosition(steerEnc.getAbsolutePositionDeg().getDegrees());
     driveEnc.SetPosition(0);
 
     // Makes motor stiff(coast mode lets it run freely)
@@ -157,7 +157,7 @@ void SwerveModule::run()
         else
         {
             // Steer PID
-            double steerOutput = steerCTR.Calculate(steerEnc.getPosition().getRadians(), steerAngleSetpoint);
+            double steerOutput = steerCTR.Calculate(steerEnc.getAbsolutePositionDeg().getRadians(), steerAngleSetpoint);
             steerMotor->Set(steerOutput);
 
             // Drive Motor uses the internal REV PID, since optimizations here are rarely needed
@@ -175,7 +175,7 @@ void SwerveModule::run()
 
 Rotation2d SwerveModule::getSteerEncoder()
 {
-    return steerEnc.getPosition();
+    return steerEnc.getAbsolutePositionDeg();
 }
 
 double SwerveModule::getDriveEncoderVel()

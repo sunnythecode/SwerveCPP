@@ -29,9 +29,9 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
             orientModules(M_PI / 4, -M_PI / 4, -M_PI / 4, M_PI / 4);
             // No need for kinematics, just use rightX as a percent speed
             mBackRight.setDrivePercentVelocitySetpoint(rightX);
-            // mBackLeft.setDrivePercentVelocitySetpoint(rightX);
+            mBackLeft.setDrivePercentVelocitySetpoint(-rightX);
             mFrontRight.setDrivePercentVelocitySetpoint(rightX);
-            mFrontLeft.setDrivePercentVelocitySetpoint(rightX);
+            mFrontLeft.setDrivePercentVelocitySetpoint(-rightX);
         }
     }
     else
@@ -41,15 +41,14 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
         double Vy = leftY * maxSpeed;
         double omega = rightX * maxRot;
 
-        ChassisSpeeds desiredSpeeds = ChassisSpeeds::fromFieldRelativeSpeeds(Vx, Vy, omega, fieldRelativeGyro);
+        //ChassisSpeeds desiredSpeeds = ChassisSpeeds::fromFieldRelativeSpeeds(Vx, Vy, omega, fieldRelativeGyro);
+        ChassisSpeeds desiredSpeeds = ChassisSpeeds(Vx, Vy, omega);
 
         // Feeding chassis speeds into kinematics module(which works, I tested it)
         std::vector<SwerveModuleState> moduleStates = m_kinematics.toSwerveStates(desiredSpeeds);
 
         // Printing the setpoints for our single module
         // BTW order of motors is FL, FR, BL, BR so [2] corresponds to BL
-        frc::SmartDashboard::PutNumber("Degree", moduleStates[2].getRot2d().getDegrees());
-        frc::SmartDashboard::PutNumber("Speed", moduleStates[2].getSpeedMPS());
 
         /**
          * Kinematics class returns module orientations in polar degrees
@@ -67,9 +66,16 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
         // Order of kinematics output is always FL, FR, BL, BR
         mFrontLeft.setModuleState(moduleStates[0]);
         mFrontRight.setModuleState(moduleStates[1]);
-        // mBackLeft.setModuleState(moduleStates[2]);
+        mBackLeft.setModuleState(moduleStates[2]);
         mBackRight.setModuleState(moduleStates[3]);
+
     }
+
+
+    FLentry->SetDouble(mFrontLeft.getSteerEncoder().getDegrees());
+    FRentry->SetDouble(mFrontRight.getSteerEncoder().getDegrees());
+    BLentry->SetDouble(mBackLeft.getSteerEncoder().getDegrees());
+    BRentry->SetDouble(mBackRight.getSteerEncoder().getDegrees());
 }
 
 void SwerveDrive::setModuleVelocity(SwerveModule &mModule, double speed, double angleRadians)

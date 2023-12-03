@@ -8,10 +8,16 @@
 #include "SwerveDriveKinematics.h"
 #include "SwerveModuleState.h"
 #include <thread>
+#include <frc/shuffleboard/Shuffleboard.h>
+#include <networktables/NetworkTableEntry.h>
 
 class SwerveDrive
 {
 private:
+
+    frc::ShuffleboardTab& tab = frc::Shuffleboard::GetTab("Swerve");
+
+
     SwerveModule mFrontLeft = SwerveModule(FLsteerID, FLdriveID, FL_CAN_ID);
     SwerveModule mFrontRight = SwerveModule(FRsteerID, FRdriveID, FR_CAN_ID);
     SwerveModule mBackLeft = SwerveModule(BLsteerID, BLdriveID, BL_CAN_ID);
@@ -29,6 +35,22 @@ private:
     // Kinematic module: wheelPs creates x,y coordinates for each module with 0,0 being center of the robot
     std::vector<Translation2d> wheelPs = {Translation2d(trackWidth, wheelBase), Translation2d(trackWidth, -wheelBase), Translation2d(-trackWidth, wheelBase), Translation2d(-trackWidth, -wheelBase)};
     SwerveDriveKinematics m_kinematics = SwerveDriveKinematics(wheelPs);
+    nt::GenericEntry* FLentry = tab
+                                .Add("FL", 0)
+                                .WithWidget(frc::BuiltInWidgets::kGyro) // specify the widget here
+                                .GetEntry();
+    nt::GenericEntry* FRentry = tab
+                                .Add("FR", 0)
+                                .WithWidget(frc::BuiltInWidgets::kGyro) // specify the widget here
+                                .GetEntry();
+    nt::GenericEntry* BLentry = tab
+                                .Add("BL", 0)
+                                .WithWidget(frc::BuiltInWidgets::kGyro) // specify the widget here
+                                .GetEntry();
+    nt::GenericEntry* BRentry = tab
+                                .Add("BR", 0)
+                                .WithWidget(frc::BuiltInWidgets::kGyro) // specify the widget here
+                                .GetEntry();
 
 public:
     void Drive(double rightX, double leftX, double leftY, double fieldRelativeGyro);

@@ -13,7 +13,7 @@
 #define FRdriveID 16
 #define FR_CAN_ID 1
 
-#define BLsteerID 3
+#define BLsteerID 12
 #define BLdriveID 10
 #define BL_CAN_ID 2
 
