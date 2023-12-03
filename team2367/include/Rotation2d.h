@@ -53,5 +53,11 @@ public:
 
     }
 
+    static double degreesBound(double input_degrees) {
+        double deg = input_degrees;
+        double output = fmod(fmod(deg, 360) + 360, 360);
+        return output;
+    }
+
 
 };

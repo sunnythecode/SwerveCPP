@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AHRS.h"
+#include "Rotation2d.h"
 
 
 class NavX {
@@ -12,6 +13,10 @@ class NavX {
 
     void init() {
         gyro.Reset();
+    }
+
+    double getBoundedAngle() {
+        return Rotation2d::degreesBound(gyro.GetAngle());
     }
 
     

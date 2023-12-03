@@ -26,8 +26,8 @@ void Robot::TeleopInit()
 }
 void Robot::TeleopPeriodic()
 {
-  frc::SmartDashboard::PutNumber("GYRO", mGyro.gyro.GetAngle());
-  mDrive.Drive(ctr->GetRightX() / 2, ctr->GetLeftX() / 2, -ctr->GetLeftY() / 2, mGyro.gyro.GetAngle());
+  frc::SmartDashboard::PutNumber("GYRO", mGyro.getBoundedAngle());
+  mDrive.Drive(ctr->GetRightX(), ctr->GetLeftX(), -ctr->GetLeftY(), mGyro.getBoundedAngle());
 
 }
 

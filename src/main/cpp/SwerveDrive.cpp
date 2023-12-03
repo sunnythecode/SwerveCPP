@@ -41,6 +41,7 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
         double Vy = leftY * maxSpeed;
         double omega = rightX * maxRot;
 
+        // Choose between field-centric & robot-centric
         //ChassisSpeeds desiredSpeeds = ChassisSpeeds::fromFieldRelativeSpeeds(Vx, Vy, omega, fieldRelativeGyro);
         ChassisSpeeds desiredSpeeds = ChassisSpeeds(Vx, Vy, omega);
 
