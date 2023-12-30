@@ -47,7 +47,7 @@ public:
     void initMotors();
     float getSteerAngleSetpoint();
     void setSteerAngleSetpoint(float setpt);
-    void setSteerAngleSetpointShortestPath(float setpt);
+    bool setSteerAngleSetpointShortestPath(float setpt);
     void setDrivePositionSetpoint(float setpt);
     void setDriveVelocitySetpoint(float setpt);
     void setDrivePercentVelocitySetpoint(float setpt);

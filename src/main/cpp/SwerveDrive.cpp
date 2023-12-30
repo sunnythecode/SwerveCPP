@@ -72,11 +72,6 @@ void SwerveDrive::Drive(double rightX, double leftX, double leftY, double fieldR
 
     }
 
-
-    FLentry->SetDouble(mFrontLeft.getSteerEncoder().getDegrees());
-    FRentry->SetDouble(mFrontRight.getSteerEncoder().getDegrees());
-    BLentry->SetDouble(mBackLeft.getSteerEncoder().getDegrees());
-    BRentry->SetDouble(mBackRight.getSteerEncoder().getDegrees());
 }
 
 void SwerveDrive::setModuleVelocity(SwerveModule &mModule, double speed, double angleRadians)
@@ -92,14 +87,27 @@ void SwerveDrive::setModuleVelocity(SwerveModule &mModule, double speed, double 
 void SwerveDrive::initAllMotors()
 {
     mFrontLeft.initMotors();
-    FLthread = std::thread(&SwerveModule::run, &mFrontLeft);
     mFrontRight.initMotors();
-    FRthread = std::thread(&SwerveModule::run, &mFrontRight);
     mBackLeft.initMotors();
-    BLthread = std::thread(&SwerveModule::run, &mBackLeft);
     mBackRight.initMotors();
-    BRthread = std::thread(&SwerveModule::run, &mBackRight);
+
+    modulePIDThread = std::thread(&runModules, this);
 }
+/**
+ * Do not call this code outside of initAllMotors's thread
+*/
+void SwerveDrive::runModules() 
+{
+    while (true) {
+        mFrontLeft.run();
+        mFrontRight.run();
+        mBackLeft.run();
+        mBackRight.run();
+    }
+    
+}
+
+
 /**
  * Set every module's threads to active mode
  * So the PIDs start running
@@ -148,4 +156,19 @@ void SwerveDrive::orientModules(double FL, double FR, double BL, double BR)
     mBackLeft.setSteerAngleSetpoint(BL);
     mFrontRight.setSteerAngleSetpoint(FR);
     mFrontLeft.setSteerAngleSetpoint(FL);
+}
+
+/**
+ * Incomplete function
+ * Awaits movement
+*/
+void SwerveDrive::autoMove(double angleRadians, double distanceFeet) 
+{
+    orientModules(angleRadians, angleRadians, angleRadians, angleRadians);
+    //Wait for modules w/ while loop
+    mFrontLeft.setDrivePositionSetpoint(distanceFeet);
+    mFrontRight.setDrivePositionSetpoint(distanceFeet);
+    mBackLeft.setDrivePositionSetpoint(distanceFeet);
+    mBackRight.setDrivePositionSetpoint(distanceFeet);
+    //Wait for modules to reach point
 }

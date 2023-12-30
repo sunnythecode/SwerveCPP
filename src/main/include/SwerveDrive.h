@@ -23,11 +23,9 @@ private:
     SwerveModule mBackLeft = SwerveModule(BLsteerID, BLdriveID, BL_CAN_ID);
     SwerveModule mBackRight = SwerveModule(BRsteerID, BRdriveID, BR_CAN_ID);
 
+    
     // Threas for each Module
-    std::thread FLthread;
-    std::thread FRthread;
-    std::thread BLthread;
-    std::thread BRthread;
+    std::thread modulePIDThread;
 
     float maxSpeed = moduleMaxFPS; // feet/sec, since 5700 RPM = 16 ft/s * 356.25, we have conversion factor
     float maxRot = moduleMaxRot;
@@ -35,22 +33,10 @@ private:
     // Kinematic module: wheelPs creates x,y coordinates for each module with 0,0 being center of the robot
     std::vector<Translation2d> wheelPs = {Translation2d(trackWidth, wheelBase), Translation2d(trackWidth, -wheelBase), Translation2d(-trackWidth, wheelBase), Translation2d(-trackWidth, -wheelBase)};
     SwerveDriveKinematics m_kinematics = SwerveDriveKinematics(wheelPs);
-    nt::GenericEntry* FLentry = tab
-                                .Add("FL", 0)
-                                .WithWidget(frc::BuiltInWidgets::kGyro) // specify the widget here
-                                .GetEntry();
-    nt::GenericEntry* FRentry = tab
-                                .Add("FR", 0)
-                                .WithWidget(frc::BuiltInWidgets::kGyro) // specify the widget here
-                                .GetEntry();
-    nt::GenericEntry* BLentry = tab
-                                .Add("BL", 0)
-                                .WithWidget(frc::BuiltInWidgets::kGyro) // specify the widget here
-                                .GetEntry();
-    nt::GenericEntry* BRentry = tab
-                                .Add("BR", 0)
-                                .WithWidget(frc::BuiltInWidgets::kGyro) // specify the widget here
-                                .GetEntry();
+
+
+    // Module Level functions
+    void runModules(); // Private - do not call outside of init
 
 public:
     void Drive(double rightX, double leftX, double leftY, double fieldRelativeGyro);
@@ -60,4 +46,6 @@ public:
     bool stopAllMotors();
     double convertAngleReference(double input);
     void orientModules(double FL, double FR, double BL, double BR);
+    void autoMove(double angleRadians, double distanceFeet);
+    // void autoRotate(double angleRadians); Needs to be thought out a little
 };

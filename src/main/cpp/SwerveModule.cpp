@@ -67,17 +67,21 @@ void SwerveModule::setSteerAngleSetpoint(float setpt)
  * 0 is the right, goes counterclockwise
  * Not tested
  */
-void SwerveModule::setSteerAngleSetpointShortestPath(float setpt)
+bool SwerveModule::setSteerAngleSetpointShortestPath(float setpt)
 {
-    double currAngle = steerEnc.getPosition().getRadians();
-    if (fabs(setpt - currAngle) > ((2 * M_PI) - fabs(setpt - currAngle)))
+    double currAngle = Rotation2d::radiansBound(steerEnc.getPosition().getRadians());
+    double setAngle = Rotation2d::radiansBound(setpt);
+    bool flip = false;
+    if (fabs(currAngle - setAngle) > (M_PI / 2)) // Flipping drive direction = shorter
     {
-        steerAngleSetpoint = setpt - (2 * M_PI);
-    }
-    else
+        flip = true;
+        setSteerAngleSetpoint(setAngle - (M_PI / 2));
+    } else 
     {
-        steerAngleSetpoint = setpt;
+        setSteerAngleSetpoint(setAngle);
+        
     }
+    return flip;
 }
 
 /**
@@ -114,8 +118,12 @@ void SwerveModule::setDrivePercentVelocitySetpoint(float setpt)
  */
 void SwerveModule::setModuleState(SwerveModuleState setpt)
 {
-    setDriveVelocitySetpoint(setpt.getSpeedMPS());
-    setSteerAngleSetpoint(setpt.getRot2d().getRadians());
+    bool flip = setSteerAngleSetpointShortestPath(setpt.getRot2d().getRadians());
+    if (flip) {
+        setDriveVelocitySetpoint(-setpt.getSpeedMPS());
+    } else {
+        setDriveVelocitySetpoint(setpt.getSpeedMPS());
+    }
 }
 
 /**
@@ -136,7 +144,7 @@ bool SwerveModule::isFinished(float percentageBound)
 }
 
 /**
- * This function is meant to run in a thread
+ * This function is meant to run in a while loop
  * when stopThread is true, motors are stopped
  * when stopThread is false, motor PIDs are running
  * steerPID uses frc2::PIDController
@@ -145,30 +153,28 @@ bool SwerveModule::isFinished(float percentageBound)
  */
 void SwerveModule::run()
 {
-    while (1)
+
+    if (stopThread) // Thread is in standby mode
     {
-        if (stopThread) // Thread is in standby mode
+
+        steerMotor->StopMotor();
+        driveMotor->StopMotor();
+    }
+
+    else
+    {
+        // Steer PID
+        double steerOutput = steerCTR.Calculate(steerEnc.getAbsolutePositionDeg().getRadians(), steerAngleSetpoint);
+        steerMotor->Set(steerOutput);
+
+        // Drive Motor uses the internal REV PID, since optimizations here are rarely needed
+        if (driveModePosition)
         {
-
-            steerMotor->StopMotor();
-            driveMotor->StopMotor();
+            m_pidController.SetReference(drivePositionSetpoint, rev::CANSparkMax::ControlType::kPosition);
         }
-
         else
         {
-            // Steer PID
-            double steerOutput = steerCTR.Calculate(steerEnc.getAbsolutePositionDeg().getRadians(), steerAngleSetpoint);
-            steerMotor->Set(steerOutput);
-
-            // Drive Motor uses the internal REV PID, since optimizations here are rarely needed
-            if (driveModePosition)
-            {
-                m_pidController.SetReference(drivePositionSetpoint, rev::CANSparkMax::ControlType::kPosition);
-            }
-            else
-            {
-                m_pidController.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kVelocity);
-            }
+            m_pidController.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kVelocity);
         }
     }
 }

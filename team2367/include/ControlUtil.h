@@ -11,12 +11,12 @@ class ControlUtil
      * Add deadzone and scale from deadzone by square
      * Input must be in [-1, 1]
     */
-    double deadZoneScale(double input, double deadzone)
+    double deadZoneQuadratic(double input, double deadzone)
     {
         if (fabs(input) < deadzone) {
-            return std::copysign(pow((fabs(input) - deadzone), 2), input);
+            return 0.0;
         } else {
-            return input;
+            return std::copysign(pow((fabs(input) - deadzone), 2), input);
         }
 
     }

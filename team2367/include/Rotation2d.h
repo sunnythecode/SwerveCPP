@@ -46,6 +46,9 @@ public:
         return radians;
     }
 
+    /**
+     * Bound from 0 to 2pi
+    */
     static double radiansBound(double input_radians) {
         double deg = (180 / M_PI) * input_radians;
         double output = fmod(fmod(deg, 360) + 360, 360) * (M_PI / 180);
@@ -53,6 +56,33 @@ public:
 
     }
 
+    /**
+     * Unimplemented
+     * Polar: 0=right, positive=counterclockwise
+     * Compass: 0=forward, positive=clockwise
+     * Input in radians
+    */
+    static double compassToPolar(double angleRadians) {
+        double angle = radiansBound(angleRadians);
+        angle = -angle + M_PI_2;
+        return radiansBound(angle);
+    }
+
+    /**
+     * Polar: 0=right, positive=counterclockwise
+     * Compass: 0=forward, positive=clockwise
+     * Input in radians
+    */
+    static double polarToCompass(double angleRadians) {
+        double angle = radiansBound(angleRadians);
+        angle = -angle + M_PI_2;
+        return radiansBound(angle);
+    }
+
+
+    /**
+     * Bound from 0-360
+    */
     static double degreesBound(double input_degrees) {
         double deg = input_degrees;
         double output = fmod(fmod(deg, 360) + 360, 360);
