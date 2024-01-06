@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Translation2d.h"
-#include "Rotation2d.h"
+#include "geometry/Translation2d.h"
+#include "geometry/Rotation2d.h"
 
 class Pose2d
 {

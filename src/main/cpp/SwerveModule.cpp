@@ -17,10 +17,11 @@ void SwerveModule::initMotors()
     driveMotor->RestoreFactoryDefaults();
 
     // No inverts needed due to CANCoder
-    steerMotor->SetInverted(false);
+    steerMotor->SetInverted(true);
+    driveMotor->SetInverted(true);
 
     // To be changed to absolute position
-    steerEnc.encoder.SetPosition(steerEnc.getAbsolutePositionDeg().getDegrees());
+    steerEnc.encoder.SetPosition(steerEnc.getAbsolutePosition().getDegrees());
     driveEnc.SetPosition(0);
 
     // Makes motor stiff(coast mode lets it run freely)
@@ -47,6 +48,8 @@ void SwerveModule::initMotors()
     m_pidController.SetOutputRange(kMinOutput, kMaxOutput);
 
     steerCTR.EnableContinuousInput(0, 2 * M_PI);
+    // m_pidController.SetSmartMotionAccelStrategy(rev::CANPIDController::AccelStrategy::kSCurve);
+    //m_pidController.SetSmartMotionMaxAccel()
 }
 
 float SwerveModule::getSteerAngleSetpoint()
@@ -74,11 +77,13 @@ bool SwerveModule::setSteerAngleSetpointShortestPath(float setpt)
     bool flip = false;
     if (fabs(currAngle - setAngle) > (M_PI / 2)) // Flipping drive direction = shorter
     {
+        frc::SmartDashboard::PutBoolean("Flip", true);
         flip = true;
-        setSteerAngleSetpoint(setAngle - (M_PI / 2));
+        setSteerAngleSetpoint(setAngle - (M_PI));
     } else 
     {
         setSteerAngleSetpoint(setAngle);
+        frc::SmartDashboard::PutBoolean("Flip", false);
         
     }
     return flip;
@@ -120,10 +125,26 @@ void SwerveModule::setModuleState(SwerveModuleState setpt)
 {
     bool flip = setSteerAngleSetpointShortestPath(setpt.getRot2d().getRadians());
     if (flip) {
-        setDriveVelocitySetpoint(-setpt.getSpeedMPS());
+        setDriveVelocitySetpoint(-setpt.getSpeedFPS());
     } else {
-        setDriveVelocitySetpoint(setpt.getSpeedMPS());
+        setDriveVelocitySetpoint(setpt.getSpeedFPS());
     }
+    // setSteerAngleSetpoint(setpt.getRot2d().getRadians());
+    // setDriveVelocitySetpoint(setpt.getSpeedFPS());
+}
+
+SwerveModuleState SwerveModule::getModuleState() {
+    double vel = getDriveEncoderVel();
+    // Gyro widget is in compass format, encoders r in polar
+    double angle = Rotation2d::polarToCompass(getSteerEncoder().getDegrees());
+
+    
+    if (vel < 0) {
+        angle = angle + 180;
+    }
+    angle = Rotation2d::degreesBound(angle);
+    // ShuffleUI::MakeWidget(name, driveTab, angle, frc::BuiltInWidgets::kGyro, row, col);
+    return SwerveModuleState(fabs(vel), angle * M_PI / 180);
 }
 
 /**
@@ -164,7 +185,8 @@ void SwerveModule::run()
     else
     {
         // Steer PID
-        double steerOutput = steerCTR.Calculate(steerEnc.getAbsolutePositionDeg().getRadians(), steerAngleSetpoint);
+        double steerOutput = steerCTR.Calculate(steerEnc.getAbsolutePosition().getRadians(), steerAngleSetpoint);
+        currentSteerOutput = steerOutput;
         steerMotor->Set(steerOutput);
 
         // Drive Motor uses the internal REV PID, since optimizations here are rarely needed
@@ -181,7 +203,11 @@ void SwerveModule::run()
 
 Rotation2d SwerveModule::getSteerEncoder()
 {
-    return steerEnc.getAbsolutePositionDeg();
+    return steerEnc.getAbsolutePosition();
+}
+
+double SwerveModule::getSteerOutput() {
+    return currentSteerOutput;
 }
 
 double SwerveModule::getDriveEncoderVel()

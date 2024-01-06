@@ -108,6 +108,7 @@
     "__verbose_abort": "cpp",
     "charconv": "cpp",
     "ios": "cpp",
-    "locale": "cpp"
+    "locale": "cpp",
+    "*.inc": "cpp"
   }
 }

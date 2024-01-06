@@ -2,7 +2,7 @@
 
 
 #include <ctre/Phoenix.h>
-#include "Rotation2d.h"
+#include "geometry/Rotation2d.h"
 
 
 class CAN_Coder {
@@ -22,7 +22,7 @@ class CAN_Coder {
         return Rotation2d(encoder.GetPosition() * (M_PI / 180));
     }
 
-    Rotation2d getAbsolutePositionDeg() {
+    Rotation2d getAbsolutePosition() {
         return Rotation2d(encoder.GetAbsolutePosition() * (M_PI / 180));
     }
 

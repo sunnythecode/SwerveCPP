@@ -1,114 +1,4 @@
-#pragma once
-
-#include <frc/shuffleboard/Shuffleboard.h>
-#include <networktables/NetworkTableEntry.h>
-#include <vector>
-#include "UIWidget.h"
-#include <iostream>
-
-// A static class for making Shuffleboard easier to use
-class ShuffleUI {
-  private:
-    // static vector to store info on created widgets, using the UIWidget class.
-    static std::vector<UIWidget *> widgetList;
-
-    /**
-     * Adds a UIWidget to a list of created widgets
-     *
-     * @param widget pointer to a UIWidget
-     */
-    static void AddEntry(UIWidget *widget);
-
-
-  public:
-    /**
-     * Creates a new widget, or updates an existing widget's value.
-     *
-     * @param name Widget's name
-     * @param tab Widget's tab
-     * @param value Widget's value
-     * @return pointer to the widget's entry
-     */
-    static nt::GenericEntry *MakeWidget(std::string name, std::string tab, int value);
-    
-    /**
-     * Creates a new widget, or updates an existing widget's value.
-     *
-     * @param name Widget's name
-     * @param tab Widget's tab
-     * @param value Widget's value
-     * @return pointer to the widget's entry
-     */
-    static nt::GenericEntry *MakeWidget(std::string name, std::string tab, double value);
-    
-    /**
-     * Creates a new widget, or updates an existing widget's value.
-     *
-     * @param name Widget's name
-     * @param tab Widget's tab
-     * @param value Widget's value
-     * @return pointer to the widget's entry
-     */
-    static nt::GenericEntry *MakeWidget(std::string name, std::string tab, float value);
-
-    /**
-     * Creates a new widget, or updates an existing widget's value.
-     *
-     * @param name Widget's name
-     * @param tab Widget's tab
-     * @param value Widget's value
-     * @return pointer to the widget's entry
-     */
-    static nt::GenericEntry *MakeWidget(std::string name, std::string tab, bool value);
-    
-    /**
-     * Creates a new widget with a slider.
-     *
-     * @param name Widget's name
-     * @param tab Widget's tab
-     * @param min Slider lower bound
-     * @param max Slider upper bound
-     * @param defaultVal Slider's default value
-     * @return pointer to the widget's entry
-     */
-    static nt::GenericEntry *MakeSlider(std::string name, std::string tab, double min, double max, double defaultVal);
-
-    /**
-     * Finds an existing widget.
-     *
-     * @param name Widget's name
-     * @param tab Widget's tab
-     * @return pointer to the widget's entry, or NULL if widget does not exist
-     */
-    static nt::GenericEntry *GetEntry(std::string name, std::string tab);
-
-    /**
-     * Creates a new widget with a graph, or updates an existing graph's value.
-     *
-     * @param name Widget's name
-     * @param tab Widget's tab
-     * @param value Widget's value
-     * @return pointer to the widget's entry
-     */
-    static nt::GenericEntry *MakeGraph(std::string name, std::string tab, double value);
-
-    /**
-     * Creates a new widget with a button.
-     *
-     * @param name Widget's name
-     * @param tab Widget's tab
-     * @param defaultState Widget's default state
-     * @return pointer to the widget's entry
-     */
-    static nt::GenericEntry *MakeButton(std::string name, std::string tab, bool defaultState);
-
-    /**
-     * Prints the names of all widgets.
-     */
-    static void PrintWidgetList();
-};
-
-
+#include "util/ShuffleUI.h"
 
 std::vector<UIWidget *> ShuffleUI::widgetList;
 
@@ -140,6 +30,54 @@ nt::GenericEntry *ShuffleUI::MakeWidget(std::string name, std::string tab, doubl
     UIWidget *widget = new UIWidget(entry, tab, name);
     ShuffleUI::AddEntry(widget);
     return entry;
+}
+
+// makes a widget and returns a pointer to its entry. If widget with that name already exists, updates its value and returns that entry's pointer instead
+nt::GenericEntry *ShuffleUI::MakeWidget(std::string name, std::string tab, double value, int row, int col) {
+    if (GetEntry(name, tab) != NULL) { 
+        //std::cout << "widget already exists" << std::endl;
+        try {
+            GetEntry(name, tab)->SetDouble(value);
+        } catch(...) {}
+        return GetEntry(name, tab);
+    }
+    nt::GenericEntry *entry = frc::Shuffleboard::GetTab(tab).Add(name, value).WithPosition(col, row).GetEntry();
+    UIWidget *widget = new UIWidget(entry, tab, name);
+    ShuffleUI::AddEntry(widget);
+    return entry;
+}
+
+// makes a widget and returns a pointer to its entry. If widget with that name already exists, updates its value and returns that entry's pointer instead
+nt::GenericEntry *ShuffleUI::MakeWidget(std::string name, std::string tab, double value, frc::BuiltInWidgets widgetType) {
+    if (GetEntry(name, tab) != NULL) { 
+        //std::cout << "widget already exists" << std::endl;
+        try {
+            GetEntry(name, tab)->SetDouble(value);
+        } catch(...) {}
+        return GetEntry(name, tab);
+    }
+    nt::GenericEntry *entry = frc::Shuffleboard::GetTab(tab).Add(name, value).WithWidget(widgetType).GetEntry();
+    std::cout << "Making New widget" << "\n";
+    UIWidget *widget = new UIWidget(entry, tab, name);
+    ShuffleUI::AddEntry(widget);
+    return entry;
+}
+
+nt::GenericEntry *ShuffleUI::MakeWidget(std::string name, std::string tab, double value, frc::BuiltInWidgets widgetType, int row, int col) {
+    if (GetEntry(name, tab) != NULL) { 
+        //std::cout << "widget already exists" << std::endl;
+        try {
+            GetEntry(name, tab)->SetDouble(value);
+        } catch(...) {}
+        return GetEntry(name, tab);
+    } else {
+        nt::GenericEntry *entry = frc::Shuffleboard::GetTab(tab).Add(name, value).WithWidget(widgetType).WithPosition(col, row).GetEntry();
+        UIWidget *widget = new UIWidget(entry, tab, name);
+        ShuffleUI::AddEntry(widget);
+        return entry;
+
+    }
+    
 }
 
 // makes a widget and returns a pointer to its entry. If widget with that name already exists, updates its value and returns that entry's pointer instead

@@ -8,10 +8,11 @@
 #include <rev/SparkMaxPIDController.h>
 #include <rev/CANSparkMax.h>
 
-#include "CAN_Coder.h"
-#include "Translation2d.h"
-#include "SwerveModuleState.h"
+#include "sensors/CAN_Coder.h"
+#include "geometry/Translation2d.h"
+#include "swerve/SwerveModuleState.h"
 #include "Constants.h"
+#include "util/ShuffleUI.h"
 
 class SwerveModule
 {
@@ -41,21 +42,32 @@ public:
     bool driveModePosition = false;
     bool stopThread = false;
     const int maxRPMFreeSpeed = moduleMaxRPM;
+    double currentSteerOutput = 0.0;
 
     // public:
     SwerveModule(int steerMotorID, int driveMotorID, int CAN_ID);
     void initMotors();
+
+    // Getters
     float getSteerAngleSetpoint();
+
+    // Setpoints
     void setSteerAngleSetpoint(float setpt);
     bool setSteerAngleSetpointShortestPath(float setpt);
     void setDrivePositionSetpoint(float setpt);
     void setDriveVelocitySetpoint(float setpt);
     void setDrivePercentVelocitySetpoint(float setpt);
     void setModuleState(SwerveModuleState setpt);
+
+    // Encoders
     Rotation2d getSteerEncoder();
+    double getSteerOutput();
     double getDriveEncoderVel();
     double getDriveEncoderPos();
     bool isFinished(float percentageBound);
+    SwerveModuleState getModuleState();
+
+    // Threading
     void run();
     void standbyThread();
     void exitStandbyThread();

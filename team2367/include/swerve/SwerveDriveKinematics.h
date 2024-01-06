@@ -2,13 +2,13 @@
 
 #include <iostream>
 #include <frc/EigenCore.h>
-#include "Translation2d.h"
-#include "Rotation2d.h"
+#include "geometry/Translation2d.h"
+#include "geometry/Rotation2d.h"
 #include <vector>
 #include "Eigen/QR"
-#include "ChassisSpeeds.h"
+#include "swerve/ChassisSpeeds.h"
 #include <cmath>
-#include "SwerveModuleState.h"
+#include "swerve/SwerveModuleState.h"
 
 class SwerveDriveKinematics
 {
@@ -37,6 +37,13 @@ public:
         m_forwardsKinematics = m_inverseKinematics.completeOrthogonalDecomposition().pseudoInverse();
     }
 
+
+    /**
+     * Uses matrix calculation to return swerve module speeds
+     * Speeds are not desaturated
+     * Module angles are returned in the polar reference system
+     * AKA 0 = Right, counterclockwise
+    */
     std::vector<SwerveModuleState> toSwerveStates(ChassisSpeeds desiredSpeeds)
     {
         // Its a vector but I used a matrix sorry ik theres a vector class
@@ -62,5 +69,26 @@ public:
         }
 
         return moduleStates;
+    }
+
+
+    static std::vector<SwerveModuleState> desaturateWheelSpeeds(std::vector<SwerveModuleState> states, const double maxWheelVelocity)
+    {
+        std::vector<double> speeds;
+        double maxSpeed = -1.0;
+        for (SwerveModuleState state : states) {
+            double speed = state.getSpeedFPS();
+            if (state.getSpeedFPS() > maxSpeed) {
+                maxSpeed = speed;
+            }
+        }
+        if (maxSpeed > maxWheelVelocity) 
+        {
+            for (SwerveModuleState state : states) {
+                state.setSpeedFPS(state.getSpeedFPS() * maxSpeed / maxWheelVelocity);
+            }
+        }
+
+        return states;
     }
 };

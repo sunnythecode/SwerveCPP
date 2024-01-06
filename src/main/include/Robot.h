@@ -6,10 +6,13 @@
 
 #include <frc/TimedRobot.h>
 #include <frc/XboxController.h>
-#include "ShuffleUI.h"
+#include <frc/shuffleboard/Shuffleboard.h>
+
+#include "util/ShuffleUI.h"
 #include <thread>
 #include "SwerveDrive.h"
-#include "NavX.h"
+#include "util/ControlUtil.h"
+#include "sensors/NavX.h"
 
 class Robot : public frc::TimedRobot
 {
@@ -32,7 +35,7 @@ public:
   void SimulationInit() override;
   void SimulationPeriodic() override;
 
-  frc::XboxController *ctr = new frc::XboxController(0);
+  frc::XboxController ctr = frc::XboxController(0);
   SwerveDrive mDrive = SwerveDrive();
   NavX mGyro = NavX();
 };
