@@ -1,5 +1,5 @@
 #pragma once
-#include "Rotation2d.h"
+#include "geometry/Rotation2d.h"
 
 class SwerveModuleState {
     private:
@@ -7,13 +7,13 @@ class SwerveModuleState {
         double angleRadians_;
 
     public:
-        SwerveModuleState(double speedMPS, double angleRadians) {
-            speed_ = speedMPS;
+        SwerveModuleState(double speedFPS, double angleRadians) {
+            speed_ = speedFPS;
             angleRadians_ = angleRadians;
         }
 
-        SwerveModuleState(double speedMPS, Rotation2d rotRadians) {
-            speed_ = speedMPS;
+        SwerveModuleState(double speedFPS, Rotation2d rotRadians) {
+            speed_ = speedFPS;
             angleRadians_ = rotRadians.getRadians();
         }
         SwerveModuleState() {
@@ -23,8 +23,14 @@ class SwerveModuleState {
         Rotation2d getRot2d() {
             return Rotation2d(angleRadians_);
         }
-        double getSpeedMPS() {
+        double getSpeedFPS() {
             return speed_;
+        }
+        void setSpeedFPS(const double speedFPS) {
+            speed_ = speedFPS;
+        }
+        void setRot2d(const Rotation2d angle) {
+            angleRadians_ = angle.getRadians();
         }
 
 

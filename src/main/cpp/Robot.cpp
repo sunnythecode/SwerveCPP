@@ -7,81 +7,43 @@
 
 void Robot::RobotInit()
 {
-  testModule.initMotors();
-  testThread = std::thread(&SwerveModule::run, &testModule); // Instantiating pre-declared thread
-  testModule2.initMotors();
-  testThread2 = std::thread(&SwerveModule::run, &testModule2); // Instantiating pre-declared thread
-  testModule3.initMotors();
-  testThread3 = std::thread(&SwerveModule::run, &testModule3); // Instantiating pre-declared thread
+  mDrive.initAllMotors();
+  mGyro.init();
 }
 void Robot::RobotPeriodic()
 {
-  // Print the steer encoder position and drive encoder velocity
-  ShuffleUI::MakeWidget("SteerPosition", "TestModule1", testModule.getSteerEncoder().getRadians());
-  ShuffleUI::MakeWidget("DriveVelocity", "TestModule1", testModule.getDriveEncoderVel());
-
+  //ShuffleUI::MakeWidget("Gyro", driveTab, mGyro.getBoundedAngle(), frc::BuiltInWidgets::kGyro);
+  frc::SmartDashboard::PutNumber("Gyro", mGyro.getBoundedAngle());
 }
 
 void Robot::AutonomousInit()
 {
-  testModule.exitStandbyThread();
-  testModule2.exitStandbyThread();
-  testModule3.exitStandbyThread(); // Start running motor threads
+  mDrive.enableThreads();
+
 }
 void Robot::AutonomousPeriodic()
 {
-  testModule.setDriveVelocitySetpoint(100); // RPM
-  testModule.setSteerAngleSetpoint(0.3);
-  testModule2.setDriveVelocitySetpoint(100); // RPM
-  testModule2.setSteerAngleSetpoint(0.3);
-  testModule3.setDriveVelocitySetpoint(100); // RPM
-  testModule3.setSteerAngleSetpoint(0.3);
 }
 void Robot::TeleopInit()
 {
-  testModule.exitStandbyThread(); // Start running motor threads
-  testModule.setDriveVelocitySetpoint(0.0);
-  testModule.setSteerAngleSetpoint(0.0);
-  testModule2.exitStandbyThread(); // Start running motor threads
-  testModule2.setDriveVelocitySetpoint(0.0);
-  testModule2.setSteerAngleSetpoint(0.0);
-  testModule3.exitStandbyThread(); // Start running motor threads
-  testModule3.setDriveVelocitySetpoint(0.0);
-  testModule3.setSteerAngleSetpoint(0.0);
+  mDrive.enableThreads();
 }
 void Robot::TeleopPeriodic()
 {
-  // Increment the steer motor angle by our controller's right X value
-  double angle = atan2(-ctr->GetLeftY(), ctr->GetLeftX());
-  double mag = sqrt((ctr->GetLeftX()*ctr->GetLeftX()) + (ctr->GetLeftY()*ctr->GetLeftY()));
-
-  frc::SmartDashboard::PutNumber("JAngle", angle);
-  // Step 1: Subtract by pi/2 to change from polar to 0 north
-  angle -= M_PI_2;
-  angle += PI * 2;
-
-
-  // Step 2: Modulus to change from 0 - pi to 0 - 2pi
-  angle = fmod(angle, M_PI * 2);
-  if (fabs(mag) < 0.01) {
-    angle = 0.0;
-  }
   
-  frc::SmartDashboard::PutNumber("InAngle", angle);
-  testModule.setSteerAngleSetpoint(angle*3.375);
-  testModule.setDrivePercentVelocitySetpoint(mag);
-  testModule2.setSteerAngleSetpoint(angle*3.375);
-  testModule2.setDrivePercentVelocitySetpoint(mag);
-  testModule3.setSteerAngleSetpoint(angle*3.375);
-  testModule3.setDrivePercentVelocitySetpoint(mag);
+  // frc::SmartDashboard::PutNumber("GYRO", mGyro.getBoundedAngle());
+  // frc::SmartDashboard::PutNumber("leftY", ctr.GetLeftY());
+  mDrive.Drive(
+    ControlUtil::deadZoneQuadratic(ctr.GetRightX(), ctrDeadzone), 
+    ControlUtil::deadZoneQuadratic(ctr.GetLeftX() / 2, ctrDeadzone), 
+    ControlUtil::deadZoneQuadratic(-ctr.GetLeftY() / 2, ctrDeadzone), 
+    mGyro.getBoundedAngle());
+  mDrive.displayDriveTelemetry();
 }
 
 void Robot::DisabledInit()
 {
-  // Put module in standby(stop motors and wait)
-  testModule.standbyThread();
-  testModule2.standbyThread();
-  testModule3.standbyThread();
+  mDrive.stopAllMotors();
 }
 void Robot::DisabledPeriodic() {}
 

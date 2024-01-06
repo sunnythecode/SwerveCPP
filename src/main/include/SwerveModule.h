@@ -1,13 +1,18 @@
 #pragma once
 
-#include <rev/CANSparkMax.h>
 #include <thread>
-#include "Translation2d.h"
-#include "SwerveModuleState.h"
-#include "Constants.h"
+#include <string>
+
 #include <frc/controller/PIDController.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <rev/SparkMaxPIDController.h>
+#include <rev/CANSparkMax.h>
+
+#include "sensors/CAN_Coder.h"
+#include "geometry/Translation2d.h"
+#include "swerve/SwerveModuleState.h"
+#include "Constants.h"
+#include "util/ShuffleUI.h"
 
 class SwerveModule
 {
@@ -15,17 +20,18 @@ class SwerveModule
 public:
     int steerID;
     int driveID;
+
     rev::CANSparkMax *steerMotor;
     rev::CANSparkMax *driveMotor;
 
-    rev::SparkMaxRelativeEncoder steerEnc;
+    CAN_Coder steerEnc;
     rev::SparkMaxRelativeEncoder driveEnc;
 
     // PID Controller for Steer Motor
-    frc2::PIDController steerCTR{0.2, 0.0, 0.0};
+    frc2::PIDController steerCTR{steerP, steerI, steerD};
 
     // REV Default Velocity PID values(Drive Motor)
-    double kP = 6e-5, kI = 1e-6, kD = 0, kIz = 0, kFF = 0.000015, kMaxOutput = 1.0, kMinOutput = -1.0;
+    double kP = revkP, kI = revkI, kD = revkD, kIz = revkIz, kFF = revkFF, kMaxOutput = revkMaxOutput, kMinOutput = revkMinOutput;
 
     // PID Controller for Drive Motor
     rev::SparkMaxPIDController m_pidController;
@@ -35,22 +41,33 @@ public:
     float steerAngleSetpoint;
     bool driveModePosition = false;
     bool stopThread = false;
-    const int maxRPMFreeSpeed = 5700;
+    const int maxRPMFreeSpeed = moduleMaxRPM;
+    double currentSteerOutput = 0.0;
 
     // public:
-    SwerveModule(int steerMotorID, int driveMotorID); // To be implemented, unable to initialize motors here
+    SwerveModule(int steerMotorID, int driveMotorID, int CAN_ID);
     void initMotors();
+
+    // Getters
     float getSteerAngleSetpoint();
+
+    // Setpoints
     void setSteerAngleSetpoint(float setpt);
-    void setSteerAngleSetpointShortestPath(float setpt);
+    bool setSteerAngleSetpointShortestPath(float setpt);
     void setDrivePositionSetpoint(float setpt);
     void setDriveVelocitySetpoint(float setpt);
     void setDrivePercentVelocitySetpoint(float setpt);
     void setModuleState(SwerveModuleState setpt);
+
+    // Encoders
     Rotation2d getSteerEncoder();
+    double getSteerOutput();
     double getDriveEncoderVel();
     double getDriveEncoderPos();
     bool isFinished(float percentageBound);
+    SwerveModuleState getModuleState();
+
+    // Threading
     void run();
     void standbyThread();
     void exitStandbyThread();

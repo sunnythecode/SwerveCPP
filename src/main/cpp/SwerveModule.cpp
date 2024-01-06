@@ -1,10 +1,10 @@
 #include "SwerveModule.h"
 
-SwerveModule::SwerveModule(int steerMotorID, int driveMotorID) : steerMotor(new rev::CANSparkMax(steerMotorID, rev::CANSparkMax::MotorType::kBrushless)),
-                                                                 driveMotor(new rev::CANSparkMax(driveMotorID, rev::CANSparkMax::MotorType::kBrushless)),
-                                                                 steerEnc(steerMotor->GetEncoder()),
-                                                                 driveEnc(driveMotor->GetEncoder()),
-                                                                 m_pidController(driveMotor->GetPIDController())
+SwerveModule::SwerveModule(int steerMotorID, int driveMotorID, int CAN_ID) : steerMotor(new rev::CANSparkMax(steerMotorID, rev::CANSparkMax::MotorType::kBrushless)),
+                                                                             driveMotor(new rev::CANSparkMax(driveMotorID, rev::CANSparkMax::MotorType::kBrushless)),
+                                                                             steerEnc(CAN_Coder(CAN_ID)),
+                                                                             driveEnc(driveMotor->GetEncoder()),
+                                                                             m_pidController(driveMotor->GetPIDController())
 {
     steerID = steerMotorID;
     driveID = driveMotorID;
@@ -15,9 +15,16 @@ void SwerveModule::initMotors()
     // Resetting Motor settings, Encoders, putting it in brake mode
     steerMotor->RestoreFactoryDefaults();
     driveMotor->RestoreFactoryDefaults();
+
+    // No inverts needed due to CANCoder
     steerMotor->SetInverted(true);
-    steerEnc.SetPosition(0);
+    driveMotor->SetInverted(true);
+
+    // To be changed to absolute position
+    steerEnc.encoder.SetPosition(steerEnc.getAbsolutePosition().getDegrees());
     driveEnc.SetPosition(0);
+
+    // Makes motor stiff(coast mode lets it run freely)
     steerMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     driveMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
 
@@ -26,11 +33,10 @@ void SwerveModule::initMotors()
     driveMotor->SetSmartCurrentLimit(20);
 
     // Conversion factor from Rotations of motor, which is nothing for now
-    steerEnc.SetPositionConversionFactor(1.0);
     driveEnc.SetPositionConversionFactor(1.0);
 
     // Setpoints to initial encoder positions/speeds
-    steerAngleSetpoint = steerEnc.GetPosition();
+    steerAngleSetpoint = steerEnc.getPosition().getRadians();
     driveVelocitySetpoint = 0.0;
 
     // Set PID values for REV Drive PID
@@ -42,6 +48,8 @@ void SwerveModule::initMotors()
     m_pidController.SetOutputRange(kMinOutput, kMaxOutput);
 
     steerCTR.EnableContinuousInput(0, 2 * M_PI);
+    // m_pidController.SetSmartMotionAccelStrategy(rev::CANPIDController::AccelStrategy::kSCurve);
+    //m_pidController.SetSmartMotionMaxAccel()
 }
 
 float SwerveModule::getSteerAngleSetpoint()
@@ -49,28 +57,41 @@ float SwerveModule::getSteerAngleSetpoint()
     return steerAngleSetpoint;
 }
 
+/**
+ * Enter in radians
+ * Will modulus it to 0 - 2pi
+ */
 void SwerveModule::setSteerAngleSetpoint(float setpt)
 {
-    steerAngleSetpoint = setpt;
+    steerAngleSetpoint = Rotation2d::radiansBound(setpt);
 }
 
 /* Takes in input from 0 - 2pi
  * 0 is the right, goes counterclockwise
- *
+ * Not tested
  */
-void SwerveModule::setSteerAngleSetpointShortestPath(float setpt)
+bool SwerveModule::setSteerAngleSetpointShortestPath(float setpt)
 {
-    double currAngle = steerEnc.GetPosition();
-    if (fabs(setpt - currAngle) > ((2 * M_PI) - fabs(setpt - currAngle)))
+    double currAngle = Rotation2d::radiansBound(steerEnc.getPosition().getRadians());
+    double setAngle = Rotation2d::radiansBound(setpt);
+    bool flip = false;
+    if (fabs(currAngle - setAngle) > (M_PI / 2)) // Flipping drive direction = shorter
     {
-        steerAngleSetpoint = setpt - (2 * M_PI);
-    }
-    else
+        frc::SmartDashboard::PutBoolean("Flip", true);
+        flip = true;
+        setSteerAngleSetpoint(setAngle - (M_PI));
+    } else 
     {
-        steerAngleSetpoint = setpt;
+        setSteerAngleSetpoint(setAngle);
+        frc::SmartDashboard::PutBoolean("Flip", false);
+        
     }
+    return flip;
 }
 
+/**
+ * Untested, I've never used it
+ */
 void SwerveModule::setDrivePositionSetpoint(float setpt)
 {
     drivePositionSetpoint = setpt;
@@ -79,7 +100,7 @@ void SwerveModule::setDrivePositionSetpoint(float setpt)
 
 /**
  * Set the drive motor velocity setpoint to input RPM
- *
+ * Max RPM is 5700
  */
 void SwerveModule::setDriveVelocitySetpoint(float setpt)
 {
@@ -89,19 +110,46 @@ void SwerveModule::setDriveVelocitySetpoint(float setpt)
 
 /**
  * Set the drive motor velocity setpoint to the input percent of max RPM
- *
+ *  Input shld be in [-1, 1]
  */
 void SwerveModule::setDrivePercentVelocitySetpoint(float setpt)
 {
     setDriveVelocitySetpoint(maxRPMFreeSpeed * setpt);
 }
 
+/**
+ * speedMPS attribute should be in RPM
+ * Sets Drive Velocity & Steer Angle
+ */
 void SwerveModule::setModuleState(SwerveModuleState setpt)
 {
-    setDriveVelocitySetpoint(setpt.getSpeedMPS());
-    setSteerAngleSetpoint(setpt.getRot2d().getRadians());
+    bool flip = setSteerAngleSetpointShortestPath(setpt.getRot2d().getRadians());
+    if (flip) {
+        setDriveVelocitySetpoint(-setpt.getSpeedFPS());
+    } else {
+        setDriveVelocitySetpoint(setpt.getSpeedFPS());
+    }
+    // setSteerAngleSetpoint(setpt.getRot2d().getRadians());
+    // setDriveVelocitySetpoint(setpt.getSpeedFPS());
 }
 
+SwerveModuleState SwerveModule::getModuleState() {
+    double vel = getDriveEncoderVel();
+    // Gyro widget is in compass format, encoders r in polar
+    double angle = Rotation2d::polarToCompass(getSteerEncoder().getDegrees());
+
+    
+    if (vel < 0) {
+        angle = angle + 180;
+    }
+    angle = Rotation2d::degreesBound(angle);
+    // ShuffleUI::MakeWidget(name, driveTab, angle, frc::BuiltInWidgets::kGyro, row, col);
+    return SwerveModuleState(fabs(vel), angle * M_PI / 180);
+}
+
+/**
+ * Unfinished, Untested, pending review
+ */
 bool SwerveModule::isFinished(float percentageBound)
 {
     if (driveModePosition)
@@ -116,40 +164,50 @@ bool SwerveModule::isFinished(float percentageBound)
     }
 }
 
+/**
+ * This function is meant to run in a while loop
+ * when stopThread is true, motors are stopped
+ * when stopThread is false, motor PIDs are running
+ * steerPID uses frc2::PIDController
+ * drivePID uses rev::PIDController
+ *
+ */
 void SwerveModule::run()
 {
-    while (1)
+
+    if (stopThread) // Thread is in standby mode
     {
-        if (stopThread) // Thread is in standby mode
+
+        steerMotor->StopMotor();
+        driveMotor->StopMotor();
+    }
+
+    else
+    {
+        // Steer PID
+        double steerOutput = steerCTR.Calculate(steerEnc.getAbsolutePosition().getRadians(), steerAngleSetpoint);
+        currentSteerOutput = steerOutput;
+        steerMotor->Set(steerOutput);
+
+        // Drive Motor uses the internal REV PID, since optimizations here are rarely needed
+        if (driveModePosition)
         {
-
-            steerMotor->StopMotor();
-            driveMotor->StopMotor();
+            m_pidController.SetReference(drivePositionSetpoint, rev::CANSparkMax::ControlType::kPosition);
         }
-
         else
         {
-            // Steer Motor uses the FRC PID Library, so we can handle optimizations on our own
-            double steerOutput = steerCTR.Calculate(steerEnc.GetPosition(), steerAngleSetpoint);
-
-            steerMotor->Set(steerOutput);
-
-            // Drive Motor uses the internal REV PID, since optimizations here are rarely needed
-            if (driveModePosition)
-            {
-                m_pidController.SetReference(drivePositionSetpoint, rev::CANSparkMax::ControlType::kPosition);
-            }
-            else
-            {
-                m_pidController.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kVelocity);
-            }
+            m_pidController.SetReference(driveVelocitySetpoint, rev::CANSparkMax::ControlType::kVelocity);
         }
     }
 }
 
 Rotation2d SwerveModule::getSteerEncoder()
 {
-    return Rotation2d(steerEnc.GetPosition());
+    return steerEnc.getAbsolutePosition();
+}
+
+double SwerveModule::getSteerOutput() {
+    return currentSteerOutput;
 }
 
 double SwerveModule::getDriveEncoderVel()
@@ -162,11 +220,22 @@ double SwerveModule::getDriveEncoderPos()
     return driveEnc.GetPosition();
 }
 
+/**
+ * Set stopThread to true
+ * Stops motors and exits PID loop
+ * Intended for disabledInit()
+ *
+ */
 void SwerveModule::standbyThread()
 {
     stopThread = true;
 }
 
+/**
+ * Set stopThread to false
+ * Enter PID loop, motors are ON
+ * Intended for teleop/auto init functions
+ */
 void SwerveModule::exitStandbyThread()
 {
     stopThread = false;
