@@ -13,7 +13,7 @@ void Robot::RobotInit()
 void Robot::RobotPeriodic()
 {
   //ShuffleUI::MakeWidget("Gyro", driveTab, mGyro.getBoundedAngle(), frc::BuiltInWidgets::kGyro);
-  frc::SmartDashboard::PutNumber("Gyro", mGyro.getBoundedAngle());
+  frc::SmartDashboard::PutNumber("Gyro", mGyro.getBoundedAngle() * 180 / M_PI);
 }
 
 void Robot::AutonomousInit()
@@ -39,6 +39,11 @@ void Robot::TeleopPeriodic()
     ControlUtil::deadZoneQuadratic(-ctr.GetLeftY() / 2, ctrDeadzone), 
     mGyro.getBoundedAngle());
   mDrive.displayDriveTelemetry();
+
+  if (ctr.GetAButtonReleased()) {
+    mGyro.init();
+  }
+
 }
 
 void Robot::DisabledInit()
