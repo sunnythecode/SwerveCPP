@@ -20,8 +20,8 @@ class NavX {
     /**
      * Radians
     */
-    double getBoundedAngle() {
-        return Rotation2d::degreesBound(-gyro.GetAngle()) * M_PI / 180;
+    Rotation2d getBoundedAngle() {
+        return Rotation2d(Rotation2d::degreesBound(-gyro.GetAngle()) * M_PI / 180);
     }
 
     

@@ -12,8 +12,7 @@ void Robot::RobotInit()
 }
 void Robot::RobotPeriodic()
 {
-  //ShuffleUI::MakeWidget("Gyro", driveTab, mGyro.getBoundedAngle(), frc::BuiltInWidgets::kGyro);
-  frc::SmartDashboard::PutNumber("Gyro", mGyro.getBoundedAngle() * 180 / M_PI);
+  frc::SmartDashboard::PutNumber("Gyro", mGyro.getBoundedAngle().getDegrees());
 }
 
 void Robot::AutonomousInit()
@@ -27,42 +26,34 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit()
 {
   mDrive.enableThreads();
-  mHeadingController.setHeadingControllerState(SwerveHeadingController::SNAP);
 }
 void Robot::TeleopPeriodic()
 {
-  
-  // frc::SmartDashboard::PutNumber("GYRO", mGyro.getBoundedAngle());
-  // frc::SmartDashboard::PutNumber("leftY", ctr.GetLeftY());
   double rot = ControlUtil::deadZoneQuadratic(ctr.GetRightX(), ctrDeadzone);
+  double rot2;
   frc::SmartDashboard::PutNumber("POV", ctr.GetPOV());
 
-  if (ctr.GetPOV() > 0) {
-    mHeadingController.setSetpoint(ctr.GetPOV());
-    
+  if (ctr.GetAButton() && (ctr.GetPOV() > 0)) 
+  {
+    double rot2 = -mHeadingController.calculate(mGyro.getBoundedAngle().getDegrees(), Rotation2d::degreesBound(-ctr.GetPOV()));
   }
 
-  double hc = mHeadingController.update(mGyro.getBoundedAngle() * 180 / M_PI);
-
-  if (ctr.GetAButton()) {
-    // rot = mHeadingController.update(mGyro.getBoundedAngle() * 180 / M_PI);
-    rot = hc;
-  }
-  frc::SmartDashboard::PutNumber("HC", hc);
+  frc::SmartDashboard::PutNumber("HC", rot2);
 
 
-  
-
-  // frc::SmartDashboard::PutNumber("Rotval", rot);
-  frc::SmartDashboard::PutNumber("Rot", rot);
+  // Swerve Drive
   mDrive.Drive(
     rot, 
     ControlUtil::deadZoneQuadratic(ctr.GetLeftX() / 2, ctrDeadzone), 
     ControlUtil::deadZoneQuadratic(-ctr.GetLeftY() / 2, ctrDeadzone), 
-    mGyro.getBoundedAngle());
+    mGyro.getBoundedAngle().getRadians());
   mDrive.displayDriveTelemetry();
 
-  if (ctr.GetAButtonReleased()) {
+
+
+  // Gyro Resets
+  if (ctr.GetAButtonReleased()) 
+  {
     mGyro.init();
   }
 
