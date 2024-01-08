@@ -27,14 +27,36 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit()
 {
   mDrive.enableThreads();
+  mHeadingController.setHeadingControllerState(SwerveHeadingController::SNAP);
 }
 void Robot::TeleopPeriodic()
 {
   
   // frc::SmartDashboard::PutNumber("GYRO", mGyro.getBoundedAngle());
   // frc::SmartDashboard::PutNumber("leftY", ctr.GetLeftY());
+  double rot = ControlUtil::deadZoneQuadratic(ctr.GetRightX(), ctrDeadzone);
+  frc::SmartDashboard::PutNumber("POV", ctr.GetPOV());
+
+  if (ctr.GetPOV() > 0) {
+    mHeadingController.setSetpoint(ctr.GetPOV());
+    
+  }
+
+  double hc = mHeadingController.update(mGyro.getBoundedAngle() * 180 / M_PI);
+
+  if (ctr.GetAButton()) {
+    // rot = mHeadingController.update(mGyro.getBoundedAngle() * 180 / M_PI);
+    rot = hc;
+  }
+  frc::SmartDashboard::PutNumber("HC", hc);
+
+
+  
+
+  // frc::SmartDashboard::PutNumber("Rotval", rot);
+  frc::SmartDashboard::PutNumber("Rot", rot);
   mDrive.Drive(
-    ControlUtil::deadZoneQuadratic(ctr.GetRightX(), ctrDeadzone), 
+    rot, 
     ControlUtil::deadZoneQuadratic(ctr.GetLeftX() / 2, ctrDeadzone), 
     ControlUtil::deadZoneQuadratic(-ctr.GetLeftY() / 2, ctrDeadzone), 
     mGyro.getBoundedAngle());

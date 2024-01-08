@@ -13,6 +13,7 @@
 #include "SwerveDrive.h"
 #include "util/ControlUtil.h"
 #include "sensors/NavX.h"
+#include "swerve/SwerveHeadingController.h"
 
 class Robot : public frc::TimedRobot
 {
@@ -38,4 +39,6 @@ public:
   frc::XboxController ctr = frc::XboxController(0);
   SwerveDrive mDrive = SwerveDrive();
   NavX mGyro = NavX();
+
+  SwerveHeadingController mHeadingController = SwerveHeadingController();
 };

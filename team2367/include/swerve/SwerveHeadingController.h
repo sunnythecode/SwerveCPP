@@ -4,17 +4,20 @@
 #include <cmath>
 #include <stdexcept>
 #include <util/SynchronousPIDF.h>
+#include <frc/controller/PIDController.h>
 class SwerveHeadingController {
 public:
     Pose2d centerOfGoal;
     enum HeadingControllerState {
-        OFF, SNAP, MAINTAIN, POLAR_MAINTAIN, POLAR_SNAP
+        OFF, SNAP
     };
-    HeadingControllerState mHeadingControllerState = OFF;
-    static SwerveHeadingController& getInstance() {
-        static SwerveHeadingController instance;
-        return instance;
+
+    SwerveHeadingController() {
+        mPIDCtr.EnableContinuousInput(0, 360);
+        mPIDCtr.SetPID(0.05, 0.0, 0.075);
+
     }
+    HeadingControllerState mHeadingControllerState = OFF;
 
     HeadingControllerState getHeadingControllerState() {
         return mHeadingControllerState;
@@ -24,11 +27,11 @@ public:
         mHeadingControllerState = state;
     }
 
-    void setGoal(double goal_pos) {
-        mSetpoint = goal_pos;
+    void setSetpoint(double setpt) {
+        mSetpoint = setpt;
     }
 
-    double getGoal() {
+    double getSetpoint() {
         return mSetpoint;
     }
 
@@ -48,37 +51,29 @@ public:
     // }
 
     double update(double current_angle) {
-       mPIDFController.setSetpoint(mSetpoint);
-        double current_error = mSetpoint - current_angle;
+       // mPIDFController.setSetpoint(mSetpoint);
+       double current_error = mSetpoint - current_angle;
 
-        if (current_error > 180) {
-            current_angle += 360;
-        } else if (current_error < -180) {
-            current_angle -= 360;
-        }
+        // if (current_error > 180) {
+        //     current_angle += 360;
+        // } else if (current_error < -180) {
+        //     current_angle -= 360;
+        // }
         switch (mHeadingControllerState) {
             case OFF:
                 return 0.0;
             case SNAP:
-                mPIDFController.setPID(0.05, 0.0, 0.075);
+                // mPIDFController.setPID(0.05, 0.0, 0.075);
+                mPIDCtr.SetPID(0.05, 0.0, 0.075);
                 break;
-            // case MAINTAIN:
-            //     mPIDFController.setPID(kMaintainSwerveHeadingKpHighVelocity, 0, 0);
-            //     mPIDFController.setOutputRange(-1.0, 1.0);
-            //     break;
-            // case POLAR_MAINTAIN:
-            //     //mPIDFController.setPID(Constants.kMaintainSwerveHeadingKp, Constants.kMaintainSwerveHeadingKi, Constants.kMaintainSwerveHeadingKd);
-            //     break;
-            // case POLAR_SNAP:
-            //     mPIDFController.setPID(kSnapSwerveHeadingKp, kSnapSwerveHeadingKi, kSnapSwerveHeadingKd);
-            //     break;
         }
-
-        return mPIDFController.calculate(current_angle);
+        return mPIDCtr.Calculate(current_angle, mSetpoint);
+        // return mPIDFController.calculate(current_angle);
     }
 private:
-    static SwerveHeadingController mInstance;
     SynchronousPIDF mPIDFController;
+    frc2::PIDController mPIDCtr {0.05, 0.0, 0.0};
+
     double mSetpoint = 0.0;
     // Define constants like kSwerveHeadingControllerErrorTolerance and others here
     // You'll need to replace these constants with their C++ equivalents

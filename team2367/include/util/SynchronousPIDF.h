@@ -38,23 +38,6 @@ public:
         m_F = f;
     }
 
-    void setInputRange(double minimumInput, double maximumInput) {
-        if (minimumInput > maximumInput) {
-            throw std::invalid_argument("Lower bound is greater than upper bound");
-        }
-        m_minimumInput = minimumInput;
-        m_maximumInput = maximumInput;
-        setSetpoint(m_setpoint);
-    }
-
-    void setOutputRange(double minimumOutput, double maximumOutput) {
-        if (minimumOutput > maximumOutput) {
-            throw std::invalid_argument("Lower bound is greater than upper bound");
-        }
-        m_minimumOutput = minimumOutput;
-        m_maximumOutput = maximumOutput;
-    }
-
     double calculate(double input) {
         double timestamp = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now().time_since_epoch()).count();
         double dt = timestamp - m_last_timestamp;
@@ -150,9 +133,9 @@ public:
     double getError() {
         return m_error;
     }
-    bool onTarget(double tolerance) {
-        return !isnan(m_last_input) && abs(m_last_input - m_setpoint) < tolerance;
-    }
+    // bool onTarget(double tolerance) {
+    //     return !isnan(m_last_input) && abs(m_last_input - m_setpoint) < tolerance;
+    // }
     void reset() {
         m_last_input = NAN;
         m_prevError = 0;
