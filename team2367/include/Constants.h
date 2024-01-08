@@ -53,7 +53,9 @@
 #define revkFF 0.000015
 #define revkMaxOutput 1.0
 #define revkMinOutput -1.0
-
+#define kSnapSwerveHeadingKp = 0.05;
+#define kSnapSwerveHeadingKi = 0.0;
+#define kSnapSwerveHeadingKd = 0.0075;
 //Shuffleboard Tabs: THESE DONT WORK
 #define driveTab "Drive"
 #define ctrTab "Controller"
